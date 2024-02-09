@@ -44,6 +44,18 @@ func (uc *UserController) GetUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(user)
 }
 
+// GetAllUsers handles GET requests to retrieve all users
+func (uc *UserController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	var users []models.User
+	if result := uc.DB.Find(&users); result.Error != nil {
+		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(users)
+}
+
 // UpdateUser handles PUT requests to update an existing user
 func (uc *UserController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)

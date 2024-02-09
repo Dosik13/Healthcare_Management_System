@@ -3,18 +3,18 @@ package main
 import (
 	"Healthcare_Management_System/app/models"
 	"Healthcare_Management_System/app/routes"
+	"Healthcare_Management_System/config"
 	"github.com/gorilla/mux"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"log"
 	"net/http"
 )
 
 func main() {
-	db, err := gorm.Open(mysql.Open("test.db"), &gorm.Config{}) // Adjust for your DB setup
-	if err != nil {
-		panic("failed to connect database")
-	}
-	err = db.AutoMigrate(&models.User{})
+	db := config.ConnectDB()
+
+	defer config.DisconnectDB(db)
+
+	err := db.AutoMigrate(&models.User{})
 	if err != nil {
 		return
 	} // Auto migrate your models
@@ -22,9 +22,7 @@ func main() {
 	r := mux.NewRouter()
 
 	routes.RegisterUserRoutes(r, db)
-
-	err = http.ListenAndServe(":8080", r)
-	if err != nil {
-		return
-	}
+	http.Handle("/", r)
+	log.Println("Listening on port 8080")
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
