@@ -14,11 +14,17 @@ func main() {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	db.AutoMigrate(&models.User{}) // Auto migrate your models
+	err = db.AutoMigrate(&models.User{})
+	if err != nil {
+		return
+	} // Auto migrate your models
 
 	r := mux.NewRouter()
 
 	routes.RegisterUserRoutes(r, db)
 
-	http.ListenAndServe(":8080", r)
+	err = http.ListenAndServe(":8080", r)
+	if err != nil {
+		return
+	}
 }
