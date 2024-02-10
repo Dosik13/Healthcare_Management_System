@@ -37,7 +37,7 @@ func (dc *DoctorController) GetDoctor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var doctor models.Doctor
-	if result := dc.DB.Preload("Patients").First(&doctor, "doctor_id = ?", id); result.Error != nil {
+	if result := dc.DB.Preload("Patients").Preload("Ratings").Preload("Appointments").First(&doctor, "doctor_id = ?", id); result.Error != nil {
 		http.Error(w, "Doctor not found", http.StatusNotFound)
 		return
 	}
@@ -46,7 +46,7 @@ func (dc *DoctorController) GetDoctor(w http.ResponseWriter, r *http.Request) {
 
 func (dc *DoctorController) GetAllDoctors(w http.ResponseWriter, r *http.Request) {
 	var doctors []models.Doctor
-	dc.DB.Preload("Patients").Find(&doctors) // Optionally preload patients if needed for the use case
+	dc.DB.Preload("Patients").Preload("Ratings").Preload("Appointments").Find(&doctors) // Optionally preload patients if needed for the use case
 	json.NewEncoder(w).Encode(doctors)
 }
 

@@ -16,17 +16,16 @@ func main() {
 
 	r := mux.NewRouter()
 
-	routes.RegisterUserRoutes(r, db)
 	routes.RegisterDoctorRoutes(r, db)
 	routes.RegisterNurseRoutes(r, db)
 	routes.RegisterEmergencyAlertRoutes(r, db)
 	routes.RegisterAppointmentRoutes(r, db)
 	routes.RegisterBillingRoutes(r, db)
-	routes.RegisterHospitalRoutes(r, db)
 	routes.RegisterPatientRoutes(r, db)
 	routes.RegisterMedicalRecordRoutes(r, db)
 	routes.RegisterPrescriptionRoutes(r, db)
 	routes.RegisterRatingRoutes(r, db)
+	routes.RegisterHospitalRoutes(r, db)
 
 	http.Handle("/", r)
 	log.Println("Listening on port 8080")

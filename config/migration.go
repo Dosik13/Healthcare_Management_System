@@ -8,13 +8,12 @@ import (
 
 func Migration(db *gorm.DB) {
 	err := db.AutoMigrate(
-		&models.User{},
+		&models.Hospital{},
 		&models.Doctor{},
 		&models.Nurse{},
 		&models.EmergencyAlert{},
 		&models.Appointment{},
 		&models.Billing{},
-		&models.Hospital{},
 		&models.Patient{},
 		&models.MedicalRecord{},
 		&models.Prescription{},
