@@ -8,7 +8,7 @@ type User struct {
 	MiddleName  string    `gorm:"type:varchar(255);not null"`
 	LastName    string    `gorm:"type:varchar(255);not null"`
 	Email       string    `gorm:"uniqueIndex;type:varchar(255);not null"`
-	Password    uint      `gorm:"type:varchar(255);not null"`
+	Password    string    `gorm:"type:varchar(255);not null"`
 	UCN         string    `gorm:"type:varchar(255);not null"`
 	Address     string    `gorm:"type:varchar(255);not null"`
 	PhoneNumber string    `gorm:"type:varchar(255);not null"`

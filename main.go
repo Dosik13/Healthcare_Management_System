@@ -26,6 +26,7 @@ func main() {
 	routes.RegisterPrescriptionRoutes(r, db)
 	routes.RegisterRatingRoutes(r, db)
 	routes.RegisterHospitalRoutes(r, db)
+	routes.RegisterAuth(r, db)
 
 	http.Handle("/", r)
 	log.Println("Listening on port 8080")
