@@ -1,7 +1,6 @@
 package main
 
 import (
-	"Healthcare_Management_System/app/models"
 	"Healthcare_Management_System/app/routes"
 	"Healthcare_Management_System/config"
 	"github.com/gorilla/mux"
@@ -13,24 +12,21 @@ func main() {
 	db := config.ConnectDB()
 
 	defer config.DisconnectDB(db)
-
-	err := db.AutoMigrate(&models.User{})
-	if err != nil {
-		return
-	} // Auto migrate your models
+	config.Migration(db)
 
 	r := mux.NewRouter()
 
 	routes.RegisterUserRoutes(r, db)
 	routes.RegisterDoctorRoutes(r, db)
+	routes.RegisterNurseRoutes(r, db)
 	routes.RegisterEmergencyAlertRoutes(r, db)
 	routes.RegisterAppointmentRoutes(r, db)
 	routes.RegisterBillingRoutes(r, db)
 	routes.RegisterHospitalRoutes(r, db)
 	routes.RegisterPatientRoutes(r, db)
 	routes.RegisterMedicalRecordRoutes(r, db)
-	routes.RegisterPatientRoutes(r, db)
 	routes.RegisterPrescriptionRoutes(r, db)
+	routes.RegisterRatingRoutes(r, db)
 
 	http.Handle("/", r)
 	log.Println("Listening on port 8080")
