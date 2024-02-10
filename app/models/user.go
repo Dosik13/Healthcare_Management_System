@@ -9,10 +9,11 @@ type User struct {
 	LastName    string    `gorm:"type:varchar(255);not null"`
 	Email       string    `gorm:"uniqueIndex;type:varchar(255);not null"`
 	Password    uint      `gorm:"type:varchar(255);not null"`
-	DateOfBirth time.Time `gorm:"not null"`
+	UCN         string    `gorm:"type:varchar(255);not null"`
 	Address     string    `gorm:"type:varchar(255);not null"`
 	PhoneNumber string    `gorm:"type:varchar(255);not null"`
 	Gender      string    `gorm:"type:varchar(255);not null"`
+	Role        string    `gorm:"type:varchar(255);not null"`
 	CreatedAt   time.Time `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
 }

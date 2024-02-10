@@ -33,7 +33,7 @@ func (pc *PatientController) GetPatient(w http.ResponseWriter, r *http.Request) 
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["patientID"])
 	var patient models.Patient
-	if result := pc.DB.First(&patient, id); result.Error != nil {
+	if result := pc.DB.Preload("MedicalRecords").First(&patient, id); result.Error != nil {
 		http.Error(w, "Patient not found", http.StatusNotFound)
 		return
 	}
@@ -42,7 +42,7 @@ func (pc *PatientController) GetPatient(w http.ResponseWriter, r *http.Request) 
 
 func (pc *PatientController) GetAllPatients(w http.ResponseWriter, r *http.Request) {
 	var patients []models.Patient
-	pc.DB.Find(&patients)
+	pc.DB.Preload("MedicalRecords").Find(&patients)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(patients)
 }

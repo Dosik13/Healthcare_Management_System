@@ -2,7 +2,8 @@ package models
 
 type Nurse struct {
 	User
-	NurseID        uint   `gorm:"primaryKey"`
-	Specialization string `gorm:"type:varchar(255);not null"`
-	Role           string `gorm:"type:varchar(255);not null"`
+	NurseID          uint      `gorm:"primaryKey"`
+	YearOfExperience uint      `gorm:"type:int;not null"`
+	WorkHours        string    `gorm:"type:varchar(255);not null"`
+	Patients         []Patient `gorm:"foreignKey:NurseID"`
 }

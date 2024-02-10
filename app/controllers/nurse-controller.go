@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"Healthcare_Management_System/app/models"
+	"Healthcare_Management_System/app/models" // Update the import path as necessary
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
@@ -31,9 +31,13 @@ func (nc *NurseController) CreateNurse(w http.ResponseWriter, r *http.Request) {
 
 func (nc *NurseController) GetNurse(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["nurseID"])
+	id, err := strconv.ParseUint(vars["nurseID"], 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid nurse ID", http.StatusBadRequest)
+		return
+	}
 	var nurse models.Nurse
-	if result := nc.DB.First(&nurse, id); result.Error != nil {
+	if result := nc.DB.Preload("Patients").First(&nurse, "nurse_id = ?", id); result.Error != nil {
 		http.Error(w, "Nurse not found", http.StatusNotFound)
 		return
 	}
@@ -42,16 +46,20 @@ func (nc *NurseController) GetNurse(w http.ResponseWriter, r *http.Request) {
 
 func (nc *NurseController) GetAllNurses(w http.ResponseWriter, r *http.Request) {
 	var nurses []models.Nurse
-	nc.DB.Find(&nurses)
+	nc.DB.Preload("Patients").Find(&nurses)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(nurses)
 }
 
 func (nc *NurseController) UpdateNurse(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["nurseID"])
+	id, err := strconv.ParseUint(vars["nurseID"], 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid nurse ID", http.StatusBadRequest)
+		return
+	}
 	var nurse models.Nurse
-	if result := nc.DB.First(&nurse, id); result.Error != nil {
+	if result := nc.DB.First(&nurse, "nurse_id = ?", id); result.Error != nil {
 		http.Error(w, "Nurse not found", http.StatusNotFound)
 		return
 	}
@@ -65,10 +73,11 @@ func (nc *NurseController) UpdateNurse(w http.ResponseWriter, r *http.Request) {
 
 func (nc *NurseController) DeleteNurse(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, _ := strconv.Atoi(vars["nurseID"])
-	if result := nc.DB.Delete(&models.Nurse{}, id); result.Error != nil {
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+	id, err := strconv.ParseUint(vars["nurseID"], 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid nurse ID", http.StatusBadRequest)
 		return
 	}
+	nc.DB.Delete(&models.Nurse{}, "nurse_id = ?", id)
 	w.WriteHeader(http.StatusNoContent)
 }

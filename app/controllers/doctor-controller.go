@@ -1,12 +1,13 @@
 package controllers
 
 import (
-	"Healthcare_Management_System/app/models"
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
+
+	"Healthcare_Management_System/app/models"
+	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
 type DoctorController struct {
@@ -36,13 +37,16 @@ func (dc *DoctorController) GetDoctor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var doctor models.Doctor
-	dc.DB.First(&doctor, id)
+	if result := dc.DB.Preload("Patients").First(&doctor, "doctor_id = ?", id); result.Error != nil {
+		http.Error(w, "Doctor not found", http.StatusNotFound)
+		return
+	}
 	json.NewEncoder(w).Encode(doctor)
 }
 
 func (dc *DoctorController) GetAllDoctors(w http.ResponseWriter, r *http.Request) {
 	var doctors []models.Doctor
-	dc.DB.Find(&doctors)
+	dc.DB.Preload("Patients").Find(&doctors) // Optionally preload patients if needed for the use case
 	json.NewEncoder(w).Encode(doctors)
 }
 
@@ -54,9 +58,17 @@ func (dc *DoctorController) UpdateDoctor(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	var doctor models.Doctor
-	dc.DB.First(&doctor, id)
-	json.NewDecoder(r.Body).Decode(&doctor)
-	dc.DB.Save(&doctor)
+	if result := dc.DB.First(&doctor, "doctor_id = ?", id); result.Error != nil {
+		http.Error(w, "Doctor not found", http.StatusNotFound)
+		return
+	}
+	var updates models.Doctor
+	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// Assumes updates to existing fields; adjust as necessary for your application logic.
+	dc.DB.Model(&doctor).Updates(updates)
 	json.NewEncoder(w).Encode(doctor)
 }
 
@@ -67,6 +79,6 @@ func (dc *DoctorController) DeleteDoctor(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "Invalid doctor ID", http.StatusBadRequest)
 		return
 	}
-	dc.DB.Delete(&models.Doctor{}, id)
+	dc.DB.Delete(&models.Doctor{}, "doctor_id = ?", id)
 	w.WriteHeader(http.StatusNoContent)
 }

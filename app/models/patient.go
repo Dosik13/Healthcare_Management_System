@@ -2,7 +2,8 @@ package models
 
 type Patient struct {
 	User
-	MedicalHistory string `gorm:"type:text"`
-	Disease        string `gorm:"type:text"`
-	Role           string `gorm:"type:varchar(255);not null"`
+	PatientID      uint            `gorm:"primaryKey"`
+	MedicalHistory string          `gorm:"type:text"`
+	Allergies      string          `gorm:"type:text"`
+	MedicalRecords []MedicalRecord `gorm:"foreignKey:PatientID"`
 }
