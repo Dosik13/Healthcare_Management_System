@@ -13,6 +13,6 @@ type User struct {
 	Address     string    `gorm:"type:varchar(255);not null"`
 	PhoneNumber string    `gorm:"type:varchar(255);not null"`
 	Gender      string    `gorm:"type:varchar(255);not null"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	CreatedAt   time.Time `gorm:"autoCreateTime"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
 }

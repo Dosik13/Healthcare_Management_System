@@ -6,8 +6,8 @@ import (
 
 type Appointment struct {
 	ID          uint      `gorm:"primaryKey"`
-	PatientID   uint      `gorm:"not null"` // Foreign key from Patient model
-	DoctorID    uint      `gorm:"not null"` // Foreign key from Doctor model
+	PatientID   uint      `gorm:"type:varchar(255);not null"` // Foreign key from Patient model
+	DoctorID    uint      `gorm:"type:varchar(255);not null"` // Foreign key from Doctor model
 	ScheduledAt time.Time `gorm:"not null"`
 	Status      string    `gorm:"not null"` // e.g., Scheduled, Cancelled, Completed
 	Reason      string    `gorm:"not null"` // Reason for the appointment

@@ -2,6 +2,6 @@ package models
 
 type HospitalStaff struct {
 	User
-	//Department string `gorm:"not null"`
-	//Role       string `gorm:"not null"`
+	StaffID uint   `gorm:"primaryKey"`
+	Role    string `gorm:"type:varchar(255);not null"`
 }

@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var RegisterUserRoutes = func(router *mux.Router, db *gorm.DB) {
+func RegisterUserRoutes(router *mux.Router, db *gorm.DB) {
 	userController := controllers.NewUserController(db)
 
 	router.HandleFunc("/users", userController.CreateUser).Methods("POST")
