@@ -7,7 +7,7 @@ type Patient struct {
 	Allergies      string          `gorm:"type:text"`
 	MedicalRecords []MedicalRecord `gorm:"foreignKey:PatientID"`
 	Billing        []Billing       `gorm:"foreignKey:PatientID"`
-	HospitalID     uint            `gorm:"not null"`
-	DoctorID       uint
-	NurseID        uint
+	HospitalID     *uint
+	DoctorID       *uint
+	NurseID        *uint
 }
