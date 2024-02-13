@@ -1,0 +1,82 @@
+@keyframes gradient {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+}
+body {
+    background: linear-gradient(-45deg, #ff7b8b, #FFD700, #ADFF2F, #00BFFF);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    color: white;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+form {
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+    color: #333;
+}
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    color: #333;
+}
+input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+input[type="submit"]:hover {
+    background-color: #45a049;
+}
+select {
+    font-size: 1em; /* Make the select element bigger */
+    margin-bottom: 20px; /* Add some space below the select element */
+}
+
+.fancy-title {
+    font-family: Arial, sans-serif;
+    color: #000000;
+    position: absolute;
+    top: -10px; /* Adjust this value to move the title up */
+    left: 10px;
+    margin-bottom: 50px;
+}
+
+form input[type="text"], form input[type="password"] {
+    display: block;
+    margin-left: 0;
+}
+
+form input[type="text"], form input[type="password"] {
+    display: block;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+form {
+    padding: 20px;
+}
+
+form input[type="text"], form input[type="password"] {
+    padding: 10px;
+    margin: 10px 0;
+}
+

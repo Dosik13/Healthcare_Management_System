@@ -31,7 +31,10 @@ func (ac *AuthController) emailExists(email string) bool {
 func NewAuthController(db *gorm.DB) *AuthController {
 	return &AuthController{DB: db}
 }
+
 func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -46,7 +49,7 @@ func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	email := r.FormValue("email")
 	password := r.FormValue("password")
-	role := r.FormValue("role") // Retrieve the role from the form
+	role := r.FormValue("role") // Retrieve the selected role
 
 	var user RoleUser
 
@@ -84,6 +87,34 @@ func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["user"] = user.UserId // Store user ID in session
 	session.Values["role"] = role        // Store role in session
 	session.Save(r, w)
+
+	fmt.Fprint(w, `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+</head>
+<body>
+    <h1 class="fancy-title">SuperDoc</h1>
+    <div>
+        <p>Please log in to continue.</p>
+    </div>
+    <form method="POST">
+        <label for="email">Email:</label><br>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br>
+        <label for="role">Role:</label><br>
+        <select id="role" name="role" required>
+            <option value="patient">Patient</option>
+            <option value="doctor">Doctor</option>
+        </select><br>
+        <input type="submit" value="Submit">
+    </form>
+    <p>Don't have an account? <a href="/register">Register here</a></p>
+</body>
+</html>`)
 
 	// Redirect or respond to indicate success
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
@@ -154,10 +185,48 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 			}
 		}
 
-	} else {
-		// Render the registration form
-
 	}
+	fmt.Fprint(w, `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css">
+    <script>
+        function updateForm() {
+            var role = document.getElementById("role").value;
+            var extraFields = document.getElementById("extraFields");
+
+            if (role === "doctor") {
+                extraFields.innerHTML = '<label for="experience">Years of Experience:</label><br><input type="number" id="experience" name="experience" min="0" required><br>';
+            } else {
+                extraFields.innerHTML = '';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1 class="fancy-title">SuperDoc</h1>
+    <div>
+        <p>Please register to continue.</p>
+    </div>
+    <form method="POST">
+        <label for="email">Email:</label><br>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br>
+        <label for="role">Role:</label><br>
+        <select id="role" name="role" onchange="updateForm()" required>
+            <option value="patient">Patient</option>
+            <option value="doctor">Doctor</option>
+        </select><br>
+        <div id="extraFields"></div>
+        <input type="submit" value="Register">
+    </form>
+    <p>Already have an account? <a href="/login">Login here</a></p>
+</body>
+</html>`)
+
 }
 
 func (ac *AuthController) LogoutHandler(w http.ResponseWriter, r *http.Request) {
