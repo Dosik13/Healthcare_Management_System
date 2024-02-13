@@ -5,6 +5,7 @@ import (
 	"Healthcare_Management_System/utils"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 func RegisterAuth(router *mux.Router, db *gorm.DB) {
@@ -15,7 +16,7 @@ func RegisterAuth(router *mux.Router, db *gorm.DB) {
 	router.HandleFunc("/register", AuthHandler.RegisterHandler).Methods("GET")
 	router.HandleFunc("/register", AuthHandler.RegisterHandler).Methods("POST")
 	router.HandleFunc("/logout", AuthHandler.LogoutHandler).Methods("GET")
-	router.HandleFunc("/home", utils.AuthMiddleware(AuthHandler.HomeHandler)).Methods("GET")
+	router.Handle("/home", utils.AuthMiddleware(http.HandlerFunc(AuthHandler.HomeHandler))).Methods("GET")
 	//router.Handle("/doctor/dashboard", utils.RoleAccessMiddleware("doctor", doctorDashboardHandler)).Methods("GET")
 	//router.Handle("/nurse/dashboard", utils.RoleAccessMiddleware("nurse", nurseDashboardHandler)).Methods("GET")
 	//router.Handle("/admin/dashboard", utils.RoleAccessMiddleware("administrator", adminDashboardHandler)).Methods("GET")
