@@ -1,7 +1,6 @@
 package models
 
 import (
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -15,7 +14,7 @@ import (
 //)
 
 type User struct {
-	gorm.Model
+	//gorm.Model
 	UserID      uint      `gorm:"primaryKey"`
 	FirstName   string    `gorm:"type:varchar(255);not null"`
 	MiddleName  string    `gorm:"type:varchar(255);not null"`
