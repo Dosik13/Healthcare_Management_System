@@ -3,7 +3,6 @@ package utils
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func HashPassword(password string) string {
@@ -13,5 +12,5 @@ func HashPassword(password string) string {
 }
 
 func CheckPasswordHash(password, hash string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)) == nil
+	return HashPassword(password) == hash
 }

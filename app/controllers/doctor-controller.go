@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"Healthcare_Management_System/utils"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -102,17 +101,4 @@ func (dc *DoctorController) DeleteDoctor(w http.ResponseWriter, r *http.Request)
 	}
 	dc.DB.Delete(&models.Doctor{}, "doctor_id = ?", id)
 	w.WriteHeader(http.StatusNoContent)
-}
-
-func populateUser(r *http.Request) models.User {
-	return models.User{
-		FirstName:   r.Form.Get("first_name"),
-		MiddleName:  r.Form.Get("middle_name"),
-		LastName:    r.Form.Get("last_name"),
-		Email:       r.Form.Get("email"),
-		Password:    utils.HashPassword(r.Form.Get("password")),
-		UCN:         r.Form.Get("ucn"),
-		Address:     r.Form.Get("address"),
-		PhoneNumber: r.Form.Get("phone_number"),
-	}
 }

@@ -19,7 +19,7 @@ func GetUserMiddleware(next http.Handler) http.Handler {
 		}
 
 		user, ok := session.Values["user"].(models.User)
-		if !ok || user.ID == 0 {
+		if !ok || user.UserID == 0 {
 			http.Error(w, "Unauthorized access", http.StatusUnauthorized)
 			return
 		}
@@ -39,7 +39,7 @@ func RoleAccessMiddleware(requiredRole string, next http.Handler) http.Handler {
 		}
 
 		if user.Role != requiredRole {
-			log.Printf("Access denied: %v is not a %v or an administrator", user.ID, requiredRole)
+			log.Printf("Access denied: %v is not a %v or an administrator", user.UserID, requiredRole)
 			http.Error(w, "Access denied", http.StatusForbidden)
 			return
 		}
