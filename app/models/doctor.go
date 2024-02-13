@@ -1,8 +1,10 @@
 package models
 
+import "gorm.io/gorm"
+
 type Doctor struct {
+	gorm.Model
 	User
-	DoctorID         uint          `gorm:"primaryKey"`
 	Specialization   string        `gorm:"type:varchar(255);not null"`
 	YearOfExperience uint          `gorm:"type:int;not null"`
 	WorkHours        string        `gorm:"type:varchar(255);not null"`

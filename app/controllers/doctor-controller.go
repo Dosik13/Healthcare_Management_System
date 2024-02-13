@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"Healthcare_Management_System/utils"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -28,6 +29,26 @@ func (dc *DoctorController) CreateDoctor(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(doctor)
 }
+
+//func (dc *DoctorController) CreateDoctor(w http.ResponseWriter, r *http.Request) {
+//	var doctor models.Doctor
+//	if err := json.NewDecoder(r.Body).Decode(&doctor); err != nil {
+//		http.Error(w, err.Error(), http.StatusBadRequest)
+//		return
+//	}
+//
+//	// Populate the Doctor fields
+//	doctor.User = populateUser(r)
+//	doctor.Specialization = r.Form.Get("specialization")
+//	yearOfExperience, _ := strconv.Atoi(r.Form.Get("year_of_experience"))
+//	doctor.YearOfExperience = uint(yearOfExperience)
+//
+//	// Save the Doctor to the database
+//	dc.DB.Create(&doctor)
+//
+//	w.WriteHeader(http.StatusCreated)
+//	json.NewEncoder(w).Encode(doctor)
+//}
 
 func (dc *DoctorController) GetDoctor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -81,4 +102,17 @@ func (dc *DoctorController) DeleteDoctor(w http.ResponseWriter, r *http.Request)
 	}
 	dc.DB.Delete(&models.Doctor{}, "doctor_id = ?", id)
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func populateUser(r *http.Request) models.User {
+	return models.User{
+		FirstName:   r.Form.Get("first_name"),
+		MiddleName:  r.Form.Get("middle_name"),
+		LastName:    r.Form.Get("last_name"),
+		Email:       r.Form.Get("email"),
+		Password:    utils.HashPassword(r.Form.Get("password")),
+		UCN:         r.Form.Get("ucn"),
+		Address:     r.Form.Get("address"),
+		PhoneNumber: r.Form.Get("phone_number"),
+	}
 }

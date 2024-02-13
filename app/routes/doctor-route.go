@@ -6,6 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
+//func (dc *DoctorController) SetupRoutes(router *mux.Router) {
+//	router.Handle("/doctors", middleware.AuthMiddleware(http.HandlerFunc(dc.GetAllDoctors))).Methods("GET")
+//	router.Handle("/doctors/{id}", middleware.AuthMiddleware(http.HandlerFunc(dc.GetDoctor))).Methods("GET")
+//	router.Handle("/doctors", middleware.AuthMiddleware(http.HandlerFunc(dc.CreateDoctor))).Methods("POST")
+//	router.Handle("/doctors/{id}", middleware.AuthMiddleware(http.HandlerFunc(dc.UpdateDoctor))).Methods("PUT")
+//	router.Handle("/doctors/{id}", middleware.AuthMiddleware(http.HandlerFunc(dc.DeleteDoctor))).Methods("DELETE")
+//}
+
 func RegisterDoctorRoutes(router *mux.Router, db *gorm.DB) {
 	doctorController := controllers.NewDoctorController(db)
 

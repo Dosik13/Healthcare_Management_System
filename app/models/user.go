@@ -1,8 +1,21 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
+
+//type Role string
+//
+//const (
+//	A Role = "Administator"
+//	P Role = "Patient"
+//	D Role = "Doctor"
+//	N Role = "Nurse"
+//)
 
 type User struct {
+	gorm.Model
 	UserID      uint      `gorm:"primaryKey"`
 	FirstName   string    `gorm:"type:varchar(255);not null"`
 	MiddleName  string    `gorm:"type:varchar(255);not null"`

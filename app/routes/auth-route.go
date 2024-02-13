@@ -11,6 +11,10 @@ func RegisterAuth(router *mux.Router, db *gorm.DB) {
 
 	router.HandleFunc("/login", AuthHandler.LoginHandler).Methods("POST")
 	router.HandleFunc("/register", AuthHandler.RegisterHandler).Methods("POST")
-	router.HandleFunc("/welcome", AuthHandler.WelcomeHandler).Methods("GET")
 	router.HandleFunc("/logout", AuthHandler.LogoutHandler).Methods("GET")
+
+	//router.Handle("/doctor/dashboard", utils.RoleAccessMiddleware("doctor", doctorDashboardHandler)).Methods("GET")
+	//router.Handle("/nurse/dashboard", utils.RoleAccessMiddleware("nurse", nurseDashboardHandler)).Methods("GET")
+	//router.Handle("/admin/dashboard", utils.RoleAccessMiddleware("administrator", adminDashboardHandler)).Methods("GET")
+
 }
