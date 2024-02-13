@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="../static/styles.css">
+</head>
+<body>
+<h1 class="fancy-title">SuperDoc</h1>
+<div>
+    <p>Please log in to continue.</p>
+</div>
+<form method="POST">
+    <label for="username">Email:</label><br>
+    <input type="text" id="username" name="username" required><br>
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password" required><br>
+    <label for="role">Role:</label><br>
+    <select id="role" name="role" required>
+        <option value="patient">Patient</option>
+        <option value="doctor">Doctor</option>
+    </select><br>
+    <input type="submit" value="Submit">
+</form>
+<p>Don't have an account? <a href="/register">Register here</a></p>
+</body>
+</html>

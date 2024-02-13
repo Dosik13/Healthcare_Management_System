@@ -5,6 +5,7 @@ import (
 	"Healthcare_Management_System/utils"
 	"fmt"
 	"gorm.io/gorm"
+	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -34,86 +35,89 @@ func NewAuthController(db *gorm.DB) *AuthController {
 func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
-		return
+	if r.Method == "POST" {
+
+		email := r.FormValue("username")
+		password := r.FormValue("password")
+		role := r.FormValue("role") // Retrieve the selected role
+
+		var user RoleUser
+
+		switch role {
+		case "doctor":
+			var doctor models.Doctor
+			if err := ac.DB.Where("email = ?", email).First(&doctor).Error; err == nil {
+				user = RoleUser{Email: doctor.Email, Password: doctor.Password, UserId: doctor.UserID}
+			}
+		case "nurse":
+			var nurse models.Nurse
+			if err := ac.DB.Where("email = ?", email).First(&nurse).Error; err == nil {
+				user = RoleUser{Email: nurse.Email, Password: nurse.Password, UserId: nurse.UserID}
+			}
+		case "patient":
+			var patient models.Patient
+			if err := ac.DB.Where("email = ?", email).First(&patient).Error; err == nil {
+				user = RoleUser{Email: patient.Email, Password: patient.Password, UserId: patient.UserID}
+			}
+		default:
+			http.Error(w, "Invalid role specified", http.StatusBadRequest)
+			return
+		}
+
+		if utils.CheckPasswordHash(password, user.Password) != true {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		// Create session
+		session, _ := utils.Store.Get(r, "SessionID")
+		// Depending on your session library, you might need to cast user.ID to the appropriate type
+		session.Values["user"] = user.UserId // Store user ID in session
+		session.Values["role"] = role        // Store role in session
+		err := session.Save(r, w)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if role == "doctor" {
+			http.Redirect(w, r, "/doctor_dashboard", http.StatusSeeOther)
+		}
+		if role == "nurse" {
+			http.Redirect(w, r, "/nurse_dashboard", http.StatusSeeOther)
+		}
+		if role == "patient" {
+			http.Redirect(w, r, "/home", http.StatusSeeOther)
+		}
+
+	} else {
+		tmpl, err := template.ParseFiles("frontend/templates/login.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Execute the template and send the result to the client
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 
-	// Parse form data
-	err := r.ParseForm()
+}
+
+func (ac *AuthController) HomeHandler(w http.ResponseWriter, r *http.Request) {
+	// Parse the HTML template
+	tmpl, err := template.ParseFiles("frontend/templates/homepage.html")
 	if err != nil {
-		http.Error(w, "Error parsing form", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	email := r.FormValue("email")
-	password := r.FormValue("password")
-	role := r.FormValue("role") // Retrieve the selected role
-
-	var user RoleUser
-
-	switch role {
-	case "Doctor":
-		var doctor models.Doctor
-		if err := ac.DB.Where("email = ?", email).First(&doctor).Error; err == nil {
-			user = RoleUser{Email: doctor.Email, Password: doctor.Password, UserId: doctor.UserID}
-		}
-	case "Nurse":
-		var nurse models.Nurse
-		if err := ac.DB.Where("email = ?", email).First(&nurse).Error; err == nil {
-			user = RoleUser{Email: nurse.Email, Password: nurse.Password, UserId: nurse.UserID}
-		}
-	case "Patient":
-		var patient models.Patient
-		if err := ac.DB.Where("email = ?", email).First(&patient).Error; err == nil {
-			user = RoleUser{Email: patient.Email, Password: patient.Password, UserId: patient.UserID}
-		}
-	default:
-		http.Error(w, "Invalid role specified", http.StatusBadRequest)
-		return
+	// Execute the template and send the result to the client
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
-	if utils.CheckPasswordHash(password, user.Password) != true {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-		return
-	}
-	// Create session
-	session, _ := utils.Store.Get(r, "session-name")
-	// Depending on your session library, you might need to cast user.ID to the appropriate type
-	session.Values["user"] = user.UserId // Store user ID in session
-	session.Values["role"] = role        // Store role in session
-	session.Save(r, w)
-
-	fmt.Fprint(w, `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="/static/styles.css">
-</head>
-<body>
-    <h1 class="fancy-title">SuperDoc</h1>
-    <div>
-        <p>Please log in to continue.</p>
-    </div>
-    <form method="POST">
-        <label for="email">Email:</label><br>
-        <input type="text" id="username" name="username" required><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br>
-        <label for="role">Role:</label><br>
-        <select id="role" name="role" required>
-            <option value="patient">Patient</option>
-            <option value="doctor">Doctor</option>
-        </select><br>
-        <input type="submit" value="Submit">
-    </form>
-    <p>Don't have an account? <a href="/register">Register here</a></p>
-</body>
-</html>`)
-
-	// Redirect or respond to indicate success
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
 func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
@@ -131,7 +135,7 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 		fmt.Println("Role: ", role)
 
 		switch role {
-		case "Doctor":
+		case "doctor":
 			var doctor models.Doctor
 			var doctor2 models.Doctor
 			doctor.User = populateUser(r)
@@ -151,7 +155,7 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 				w.WriteHeader(http.StatusCreated)
 			}
 
-		case "Patient":
+		case "nurse":
 			var patient models.Patient
 			var patient2 models.Patient
 			patient.User = populateUser(r)
@@ -169,7 +173,7 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 				return
 			}
 
-		case "Nurse":
+		case "patient":
 			var nurse models.Nurse
 			var nurse2 models.Nurse
 			nurse.User = populateUser(r)
@@ -189,48 +193,20 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 			}
 		}
 
+	} else {
+		tmpl, err := template.ParseFiles("frontend/templates/register.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Execute the template and send the result to the client
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
 	}
-	fmt.Fprint(w, `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-    <link rel="stylesheet" type="text/css" href="/static/styles.css">
-    <script>
-        function updateForm() {
-            var role = document.getElementById("role").value;
-            var extraFields = document.getElementById("extraFields");
-
-            if (role === "doctor") {
-                extraFields.innerHTML = '<label for="experience">Years of Experience:</label><br><input type="number" id="experience" name="experience" min="0" required><br>';
-            } else {
-                extraFields.innerHTML = '';
-            }
-        }
-    </script>
-</head>
-<body>
-    <h1 class="fancy-title">SuperDoc</h1>
-    <div>
-        <p>Please register to continue.</p>
-    </div>
-    <form method="POST">
-        <label for="email">Email:</label><br>
-        <input type="text" id="username" name="username" required><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password" required><br>
-        <label for="role">Role:</label><br>
-        <select id="role" name="role" onchange="updateForm()" required>
-            <option value="patient">Patient</option>
-            <option value="doctor">Doctor</option>
-        </select><br>
-        <div id="extraFields"></div>
-        <input type="submit" value="Register">
-    </form>
-    <p>Already have an account? <a href="/login">Login here</a></p>
-</body>
-</html>`)
-
 }
 
 func (ac *AuthController) LogoutHandler(w http.ResponseWriter, r *http.Request) {
@@ -247,7 +223,7 @@ func populateUser(r *http.Request) models.User {
 		FirstName:   r.Form.Get("first_name"),
 		MiddleName:  r.Form.Get("middle_name"),
 		LastName:    r.Form.Get("last_name"),
-		Email:       r.Form.Get("email"),
+		Email:       r.Form.Get("username"),
 		Password:    utils.HashPassword(r.Form.Get("password")),
 		UCN:         r.Form.Get("ucn"),
 		Address:     r.Form.Get("address"),

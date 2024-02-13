@@ -15,6 +15,7 @@ func main() {
 	config.Migration(db)
 
 	r := mux.NewRouter()
+	r.PathPrefix("/static").Handler(http.StripPrefix("/static", http.FileServer(http.Dir("D:/Healthcare_Management_System/frontend/static/"))))
 
 	routes.RegisterDoctorRoutes(r, db)
 	routes.RegisterNurseRoutes(r, db)
@@ -29,6 +30,7 @@ func main() {
 	routes.RegisterAuth(r, db)
 
 	http.Handle("/", r)
+
 	log.Println("Listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

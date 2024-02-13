@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" type="text/css" href="../static/styles.css">
+    <script>
+        function updateForm() {
+            var role = document.getElementById("role").value;
+            var extraFields = document.getElementById("extraFields");
+
+            if (role === "doctor") {
+                extraFields.innerHTML = '<label for="experience">Years of Experience:</label><br><input type="number" id="experience" name="experience" min="0" required><br>';
+            } else {
+                extraFields.innerHTML = '';
+            }
+        }
+    </script>
+</head>
+<body>
+<h1 class="fancy-title">SuperDoc</h1>
+<div>
+    <p>Please register to continue.</p>
+</div>
+<form method="POST">
+    <label for="username">Email:</label><br>
+    <input type="text" id="username" name="username" required><br>
+    <label for="password">Password:</label><br>
+    <input type="password" id="password" name="password" required><br>
+    <label for="role">Role:</label><br>
+    <select id="role" name="role" onchange="updateForm()" required>
+        <option value="patient">Patient</option>
+        <option value="doctor">Doctor</option>
+    </select><br>
+    <div id="extraFields"></div>
+    <input type="submit" value="Register">
+</form>
+<p>Already have an account? <a href="/login">Login here</a></p>
+</body>
+</html>
