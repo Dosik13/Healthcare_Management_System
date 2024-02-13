@@ -4,7 +4,6 @@ import (
 	"Healthcare_Management_System/app/models"
 	"Healthcare_Management_System/utils"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
@@ -51,39 +50,39 @@ func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	role := r.FormValue("role") // Retrieve the selected role
 
-		var user RoleUser
+	var user RoleUser
 
-		switch role {
-		case "Doctor":
-			var doctor models.Doctor
-			if err := ac.DB.Where("email = ?", email).First(&doctor).Error; err == nil {
-				user = RoleUser{Email: doctor.Email, Password: doctor.Password, UserId: doctor.UserID}
-			}
-		case "Nurse":
-			var nurse models.Nurse
-			if err := ac.DB.Where("email = ?", email).First(&nurse).Error; err == nil {
-				user = RoleUser{Email: nurse.Email, Password: nurse.Password, UserId: nurse.UserID}
-			}
-		case "Patient":
-			var patient models.Patient
-			if err := ac.DB.Where("email = ?", email).First(&patient).Error; err == nil {
-				user = RoleUser{Email: patient.Email, Password: patient.Password, UserId: patient.UserID}
-			}
-		default:
-			http.Error(w, "Invalid role specified", http.StatusBadRequest)
-			return
+	switch role {
+	case "Doctor":
+		var doctor models.Doctor
+		if err := ac.DB.Where("email = ?", email).First(&doctor).Error; err == nil {
+			user = RoleUser{Email: doctor.Email, Password: doctor.Password, UserId: doctor.UserID}
 		}
+	case "Nurse":
+		var nurse models.Nurse
+		if err := ac.DB.Where("email = ?", email).First(&nurse).Error; err == nil {
+			user = RoleUser{Email: nurse.Email, Password: nurse.Password, UserId: nurse.UserID}
+		}
+	case "Patient":
+		var patient models.Patient
+		if err := ac.DB.Where("email = ?", email).First(&patient).Error; err == nil {
+			user = RoleUser{Email: patient.Email, Password: patient.Password, UserId: patient.UserID}
+		}
+	default:
+		http.Error(w, "Invalid role specified", http.StatusBadRequest)
+		return
+	}
 
-		if utils.CheckPasswordHash(password, user.Password) != true {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-			return
-		}
-		// Create session
-		session, _ := utils.Store.Get(r, "session-name")
-		// Depending on your session library, you might need to cast user.ID to the appropriate type
-		session.Values["user"] = user.UserId // Store user ID in session
-		session.Values["role"] = role        // Store role in session
-		session.Save(r, w)
+	if utils.CheckPasswordHash(password, user.Password) != true {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+	// Create session
+	session, _ := utils.Store.Get(r, "session-name")
+	// Depending on your session library, you might need to cast user.ID to the appropriate type
+	session.Values["user"] = user.UserId // Store user ID in session
+	session.Values["role"] = role        // Store role in session
+	session.Save(r, w)
 
 	fmt.Fprint(w, `
 <!DOCTYPE html>
