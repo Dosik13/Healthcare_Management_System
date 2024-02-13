@@ -124,13 +124,7 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "text/html")
 	if r.Method == "POST" {
 
-		err := r.ParseMultipartForm(10 << 20) // Parse up to 10MB of memory
-		if err != nil {
-			http.Error(w, "Error parsing form", http.StatusBadRequest)
-			return
-		}
-
-		role := r.Form.Get("role")
+		role := r.FormValue("role")
 
 		fmt.Println("Role: ", role)
 
@@ -139,8 +133,8 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 			var doctor models.Doctor
 			var doctor2 models.Doctor
 			doctor.User = populateUser(r)
-			doctor.Specialization = r.Form.Get("specialization")
-			yearOfExperience, _ := strconv.Atoi(r.Form.Get("year_of_experience"))
+			doctor.Specialization = r.FormValue("specialization")
+			yearOfExperience, _ := strconv.Atoi(r.FormValue("year_of_experience"))
 			doctor.YearOfExperience = uint(yearOfExperience)
 
 			if result := ac.DB.First(&doctor2, "email = ?", doctor.Email); result.Error != nil {
@@ -155,12 +149,20 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 				w.WriteHeader(http.StatusCreated)
 			}
 
-		case "nurse":
+		case "patient":
 			var patient models.Patient
 			var patient2 models.Patient
 			patient.User = populateUser(r)
-			patient.Allergies = r.Form.Get("allergies")
-			patient.MedicalHistory = r.Form.Get("medical_history")
+
+			fmt.Println("Email: ", patient.Email)
+			fmt.Println("FirstName: ", patient.FirstName)
+			fmt.Println("MiddleName", patient.MiddleName)
+			fmt.Println("LastName: ", patient.LastName)
+			fmt.Println("Password: ", patient.Password)
+			fmt.Println("UCN: ", patient.UCN)
+			fmt.Println("Address: ", patient.Address)
+			fmt.Println("PhoneNumber: ", patient.PhoneNumber)
+
 			if result := ac.DB.First(&patient2, "email = ?", patient.Email); result.Error != nil {
 				result := ac.DB.Create(&patient)
 				if result.Error != nil {
@@ -173,11 +175,11 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 				return
 			}
 
-		case "patient":
+		case "nurse":
 			var nurse models.Nurse
 			var nurse2 models.Nurse
 			nurse.User = populateUser(r)
-			yearOfExperience, _ := strconv.Atoi(r.Form.Get("year_of_experience"))
+			yearOfExperience, _ := strconv.Atoi(r.FormValue("year_of_experience"))
 			nurse.YearOfExperience = uint(yearOfExperience)
 
 			if result := ac.DB.First(&nurse2, "email = ?", nurse.Email); result.Error != nil {
@@ -192,7 +194,7 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 				w.WriteHeader(http.StatusCreated)
 			}
 		}
-
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	} else {
 		tmpl, err := template.ParseFiles("frontend/templates/register.html")
 		if err != nil {
@@ -220,13 +222,14 @@ func (ac *AuthController) LogoutHandler(w http.ResponseWriter, r *http.Request) 
 
 func populateUser(r *http.Request) models.User {
 	return models.User{
-		FirstName:   r.Form.Get("first_name"),
-		MiddleName:  r.Form.Get("middle_name"),
-		LastName:    r.Form.Get("last_name"),
-		Email:       r.Form.Get("username"),
-		Password:    utils.HashPassword(r.Form.Get("password")),
-		UCN:         r.Form.Get("ucn"),
-		Address:     r.Form.Get("address"),
-		PhoneNumber: r.Form.Get("phone_number"),
+		FirstName:   r.FormValue("first_name"),
+		MiddleName:  r.FormValue("middle_name"),
+		LastName:    r.FormValue("last_name"),
+		Email:       r.FormValue("username"),
+		Password:    utils.HashPassword(r.FormValue("password")),
+		UCN:         r.FormValue("ucn"),
+		Address:     r.FormValue("address"),
+		PhoneNumber: r.FormValue("phone_number"),
+		Gender:      r.FormValue("gender"),
 	}
 }
