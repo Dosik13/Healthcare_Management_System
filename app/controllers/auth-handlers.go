@@ -108,14 +108,13 @@ func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ac *AuthController) HomeHandler(w http.ResponseWriter, r *http.Request) {
-	// Parse the HTML template
+
 	tmpl, err := template.ParseFiles("frontend/templates/homepage.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Execute the template and send the result to the client
 	err = tmpl.Execute(w, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

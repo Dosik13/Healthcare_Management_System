@@ -53,7 +53,7 @@ func (rc *RatingController) CreateRating(w http.ResponseWriter, r *http.Request)
 		http.Redirect(w, r, "/patient_dashboard", http.StatusSeeOther)
 
 	} else {
-		tmpl, err := template.ParseFiles("frontend/templates/billing.html")
+		tmpl, err := template.ParseFiles("frontend/templates/rating.html")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

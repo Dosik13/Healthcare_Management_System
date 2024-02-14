@@ -3,9 +3,10 @@ package utils
 import (
 	"github.com/gorilla/sessions"
 	"net/http"
+	"os"
 )
 
-var Store = sessions.NewCookieStore([]byte("random-string"))
+var Store = sessions.NewCookieStore([]byte(os.Getenv("SK")))
 
 func AuthenticatedPatient(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
