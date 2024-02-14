@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #calendar {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #calendar td, #calendar th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #calendar tr:nth-child(even){background-color: #f2f2f2;}
+
+        #calendar th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #appointmentList {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Change this line */
+            gap: 10px;
+        }
+
+        #appointmentList button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            white-space: nowrap; /* Add this line to stop the text from wrapping */
+            overflow: hidden; /* Add this line to hide any text that overflows the button */
+            text-overflow: ellipsis; /* Add this line to indicate that the text has been clipped */
+        }
+
+        #appointmentList button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<h2>HTML Calendar</h2>
+
+<button onclick="prevMonth()">Previous Month</button>
+<button onclick="nextMonth()">Next Month</button>
+
+<table id="calendar">
+    <tr id="monthAndYear"></tr>
+    <tr>
+        <th>Sun</th>
+        <th>Mon</th>
+        <th>Tue</th>
+        <th>Wed</th>
+        <th>Thu</th>
+        <th>Fri</th>
+        <th>Sat</th>
+    </tr>
+</table>
+
+<div id="appointmentModal" style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+    <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+        <div id="appointmentList"></div>
+        <button id="closeButton">Close</button> <!-- Add the close button here -->
+    </div>
+</div>
+
+<div id="successModal" style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+    <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+        <h2 id="successMessage"></h2>
+        <button onclick="document.getElementById('successModal').style.display = 'none';">Close</button>
+    </div>
+</div>
+
+<script>
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+
+    let appointments = {
+    };
+
+    let predefinedSlots = {
+        "2024-02-28": ["09:00-10:00"],
+        "2024-02-29": ["14:00-15:00", "15:00-16:00", "16:00-17:00", "17:00-18:00"],
+    };
+
+    updateCalendar(currentMonth, currentYear);
+
+    function addAvailableHours(date, hours) {
+        let dateStr = date.toISOString().split('T')[0]; // Format as 'yyyy-mm-dd'
+        availableHours[dateStr] = hours;
+        updateCalendar(currentMonth, currentYear);
+    }
+
+    document.getElementById('appointmentForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let startTime = document.getElementById('startTime').value;
+        let endTime = document.getElementById('endTime').value;
+
+        let date = new Date(currentYear, currentMonth, clickedDay + 1);
+        addAvailableHours(date, [startTime, endTime]);
+        document.getElementById('appointmentModal').style.display = 'none';
+    });
+
+    document.getElementById('closeAppointmentModal').addEventListener('click', function(event) {
+        event.stopPropagation();
+        document.getElementById('appointmentModal').style.display = 'none';
+    });
+
+    function updateCalendar(month, year) {
+        let date = new Date(year, month);
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
+        let calendar = document.getElementById('calendar');
+        let monthAndYear = document.getElementById('monthAndYear');
+
+        // Clear previous cells
+        while (calendar.rows.length > 2) {
+            calendar.deleteRow(2);
+        }
+
+        monthAndYear.innerHTML = `<th colspan="7">${date.toLocaleString('default', { month: 'long' })} ${year}</th>`;
+
+        // Fill in the day cells
+        let row = null;
+        let dayOfWeek = new Date(year, month, 1).getDay();
+        for (let i = 0; i < daysInMonth + dayOfWeek; i++) {
+            if (i % 7 === 0) {
+                row = calendar.insertRow();
+            }
+            let cell = row.insertCell();
+            if (i >= dayOfWeek) {
+                let day = i - dayOfWeek + 1;
+                cell.textContent = day;
+
+                cell.addEventListener('click', function() {
+                    clickedDay = day;
+                    let clickedDate = new Date(currentYear, currentMonth, day + 1);
+                    let clickedDateStr = clickedDate.toISOString().split('T')[0]; // Format as 'yyyy-mm-dd'
+
+                    let availableHours = predefinedSlots[clickedDateStr] || [];
+
+                    let appointmentDiv = document.getElementById('appointmentList');
+                    appointmentDiv.innerHTML = `<h2>Available hours for ${clickedDateStr}:</h2><div id="buttonDiv"></div>`; // Add a div for the buttons
+                    let buttonDiv = document.getElementById('buttonDiv'); // Get the new div
+
+                    for (let hour of availableHours) {
+                        let button = document.createElement('button');
+                        button.textContent = hour;
+                        button.className = 'time-slot'; // Add a class to the button
+                        button.addEventListener('click', function() {
+
+                            let additionalInfo = prompt(`You are about to choose ${hour} on ${clickedDateStr}. Please enter additional info for the reservation and confirm.`);
+                            if (additionalInfo !== null) {
+                                alert(`You have chosen ${hour} on ${clickedDateStr} with additional info: ${additionalInfo}`);
+
+                                let index = predefinedSlots[clickedDateStr].indexOf(hour);
+                                if (index > -1) {
+                                    predefinedSlots[clickedDateStr].splice(index, 1);
+                                }
+
+                                availableHours = predefinedSlots[clickedDateStr] || [];
+
+                                let oldButtonDiv = document.getElementById('buttonDiv');
+                                let newButtonDiv = oldButtonDiv.cloneNode(false);
+                                oldButtonDiv.parentNode.replaceChild(newButtonDiv, oldButtonDiv);
+
+                                for (let hour of availableHours) {
+                                    let button = document.createElement('button');
+                                    button.textContent = hour;
+                                    button.className = 'time-slot'; // Add a class to the button
+                                    button.addEventListener('click', function() {
+                                        // Prompt the user for additional info and confirm the slot
+                                        let additionalInfo = prompt(`You are about to choose ${hour} on ${clickedDateStr}. Please enter additional info for the reservation and confirm.`);
+                                        if (additionalInfo !== null) {
+                                            alert(`You have chosen ${hour} on ${clickedDateStr} with additional info: ${additionalInfo}`);
+                                        }
+                                    });
+                                    newButtonDiv.appendChild(button); // Append the button to the new div
+                                }
+                            }
+                        });
+                        buttonDiv.appendChild(button); // Append the button to the new div
+                    }
+
+                    document.getElementById('appointmentModal').style.display = 'block';
+                    // Add the event listener for the close button
+                    document.getElementById('closeButton').addEventListener('click', function() {
+                        document.getElementById('appointmentModal').style.display = 'none';
+                    });
+
+                });
+            }
+        }
+    }
+
+
+    updateCalendar(currentMonth, currentYear);
+
+
+    function prevMonth() {
+        if (currentMonth === 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else {
+            currentMonth--;
+        }
+        updateCalendar(currentMonth, currentYear);
+    }
+
+    function nextMonth() {
+        if (currentMonth === 11) {
+            currentMonth = 0;
+            currentYear++;
+        } else {
+            currentMonth++;
+        }
+        updateCalendar(currentMonth, currentYear);
+    }
+
+    updateCalendar(currentMonth, currentYear);
+
+
+
+</script>
+
+</body>
+</html>
