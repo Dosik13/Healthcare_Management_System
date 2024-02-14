@@ -3,6 +3,7 @@ package controllers
 import (
 	"Healthcare_Management_System/app/models"
 	"Healthcare_Management_System/utils"
+	"encoding/json"
 	"fmt"
 	"gorm.io/gorm"
 	"html/template"
@@ -416,6 +417,59 @@ func (ac *AuthController) ChangePasswordHandler(w http.ResponseWriter, r *http.R
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+	}
+}
+
+type DocAttr struct {
+	Name      string   `json:"name"`
+	Specialty string   `json:"specialty"`
+	Days      []string `json:"days"`
+	ID        uint     `json:"id"`
+}
+
+func (ac *AuthController) DoctorSearchHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := utils.Store.Get(r, "SessionID")
+	userId, ok := session.Values["user"].(uint)
+	if !ok || userId == 0 {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	var doctors []models.Doctor
+	result := ac.DB.Preload("Appointments").Preload("Ratings").Preload("Patients").Find(&doctors)
+	if result.Error != nil {
+		http.Error(w, "Error retrieving doctors", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("frontend/templates/search.html")
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	DocAttrs := make([]DocAttr, len(doctors))
+	for i, doctor := range doctors {
+		var dates []string
+		for _, appointment := range doctor.Appointments {
+			dates = append(dates, appointment.Date)
+		}
+		DocAttrs[i] = DocAttr{Name: doctor.User.FirstName + " " + doctor.User.LastName, Specialty: doctor.Specialization, ID: doctor.User.UserID, Days: dates}
+	}
+
+	docJSON, err := json.Marshal(DocAttrs)
+	if err != nil {
+		http.Error(w, "Failed to serialize appointments", http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"doctorsJS": string(docJSON),
+	}
+
+	err = tmpl.Execute(w, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 

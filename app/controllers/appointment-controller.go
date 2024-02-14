@@ -239,7 +239,7 @@ func (ac *AppointmentController) GetAllAppointments(w http.ResponseWriter, r *ht
 		http.Error(w, "Doctor not found", http.StatusNotFound)
 		return
 	}
-	//fmt.Printf("Doctor: %+v\n", doctor)
+
 	tmpl, err := template.ParseFiles("frontend/templates/calendar.html")
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)

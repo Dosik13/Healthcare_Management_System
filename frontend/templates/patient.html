@@ -51,39 +51,45 @@
 
     <a href="/change_email" class="btn">Change Email</a>
     <a href="/change_password" class="btn">Change Password</a>
-    <a href="/arrange_appointment" class="btn">Arrange Appointment</a>
+    <a href="/search" class="btn">Search for Doctor</a>
 
     <section>
         <h3>Your Appointments</h3>
-        <select name="appointments">
-            {{range .Appointments}}
-            <option value="{{.ID}}">{{.ScheduledAt}} - {{.Status}}</option>
-            {{else}}
-            <option>No appointments found.</option>
-            {{end}}
-        </select>
+        <label>
+            <select name="appointments">
+                {{range .Appointments}}
+                <option value="{{.ID}}">{{.ScheduledAt}} - {{.Status}}</option>
+                {{else}}
+                <option>No appointments found.</option>
+                {{end}}
+            </select>
+        </label>
     </section>
 
     <section>
         <h3>Your Medical Records</h3>
-        <select name="medicalRecords">
-            {{range .MedicalRecords}}
-            <option value="{{.ID}}">{{.RecordType}} - {{.Date}}</option>
-            {{else}}
-            <option>No medical records found.</option>
-            {{end}}
-        </select>
+        <label>
+            <select name="medicalRecords">
+                {{range .MedicalRecords}}
+                <option value="{{.ID}}">{{.RecordType}} - {{.Date}}</option>
+                {{else}}
+                <option>No medical records found.</option>
+                {{end}}
+            </select>
+        </label>
     </section>
 
     <section>
         <h3>Your Billings</h3>
-        <select name="billings">
-            {{range .Billings}}
-            <option value="{{.ID}}">Billing: {{.Amount}} - {{.Status}}</option>
-            {{else}}
-            <option>No billings found.</option>
-            {{end}}
-        </select>
+        <label>
+            <select name="billings">
+                {{range .Billings}}
+                <option value="{{.ID}}">Billing: {{.Amount}} - {{.Status}}</option>
+                {{else}}
+                <option>No billings found.</option>
+                {{end}}
+            </select>
+        </label>
     </section>
 
 </div>

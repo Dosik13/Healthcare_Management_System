@@ -90,28 +90,8 @@
 <div id="results"></div>
 
 <script>
-    let doctors = [
-        {
-            name: 'Dr. Smith',
-            specialty: 'Pediatrics',
-            days: ["2024-02-29", "2024-03-01", "2024-03-02"]
-        },
-        {
-            name: 'Dr. Johnson',
-            specialty: 'Cardiology',
-            days: ["2024-03-28", "2024-03-29", "2024-03-01"]
-        },
-        {
-            name: 'Dr. Williams',
-            specialty: 'Dermatology',
-            days: ["2024-04-01", "2024-04-02", "2024-04-03", "2024-04-04"]
-        },
-        {
-            name: 'Dr. Brown',
-            specialty: 'Pediatrics',
-            days: ["2024-04-01", "2024-04-02", "2024-04-03", "2024-04-04"]
-        }
-    ];
+
+    let doctors = JSON.parse('{{ .doctorsJS }}');
 
     function searchDoctors() {
         let name = document.getElementById('name').value;
@@ -142,10 +122,8 @@
             return;
         }
 
-        // Create table
         let table = document.createElement('table');
 
-        // Create table header
         let thead = document.createElement('thead');
         let headerRow = document.createElement('tr');
         let headers = ['Name', 'Specialty', 'Appointment'];
@@ -166,7 +144,7 @@
             let nameTd = document.createElement('td');
             let nameLink = document.createElement('a');
             nameLink.textContent = result.name;
-            nameLink.href = '#'; // replace with the URL you want to link to
+            nameLink.href = '/appointments/' + result.id;
             nameTd.appendChild(nameLink);
             resultRow.appendChild(nameTd);
 
@@ -178,7 +156,7 @@
             let appointmentButton = document.createElement('button');
             appointmentButton.textContent = 'Arrange Appointment';
             appointmentButton.onclick = function() {
-                window.location.href = 'appointment.html'; // replace with the URL of your appointment page
+                window.location.href = '/appointments/' + result.id;
             };
             appointmentTd.appendChild(appointmentButton);
             resultRow.appendChild(appointmentTd);

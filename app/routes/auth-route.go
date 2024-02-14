@@ -32,4 +32,5 @@ func RegisterAuth(router *mux.Router, db *gorm.DB) {
 	//router.Handle("/nurse/dashboard", utils.RoleAccessMiddleware("nurse", nurseDashboardHandler)).Methods("GET")
 	//router.Handle("/patient/dashboard", utils.RoleAccessMiddleware("administrator", adminDashboardHandler)).Methods("GET")
 
+	router.Handle("/search", utils.AuthenticatedPatient(http.HandlerFunc(AuthHandler.DoctorSearchHandler))).Methods("GET")
 }
