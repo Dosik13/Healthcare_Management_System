@@ -12,6 +12,7 @@ type Appointment struct {
 	ScheduledAt time.Time `gorm:"not null"`
 	Status      string    `gorm:"not null"` // e.g., Scheduled, Cancelled, Completed
 	Reason      string    `gorm:"not null"`
+	Billing     Billing
 	CreatedAt   time.Time `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
 }

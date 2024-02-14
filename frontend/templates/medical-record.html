@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submit Medical Record</title>
+    <link rel="stylesheet" href="../static/styles.css"> <!-- Adjust the path to your CSS file -->
+</head>
+<body>
+<h1 class="fancy-title">Submit Medical Record</h1>
+<div>
+    <p>Please fill out the form to submit a new medical record.</p>
+</div>
+<form method="POST" action="/medical-records">
+    <label for="patientId">Patient ID:</label><br>
+    <input type="number" id="patientId" name="patientId" required><br>
+
+    <label for="recordType">Record Type:</label><br>
+    <input type="text" id="recordType" name="recordType" required><br>
+
+    <label for="details">Details:</label><br>
+    <textarea id="details" name="details" required></textarea><br>
+
+    <label>                   Prescription Details:</label><br>
+
+    <label for="medicationInfo">Medication Info:</label><br>
+    <textarea id="medicationInfo" name="medicationInfo" required></textarea><br>
+
+    <label for="date">Date:</label><br>
+    <input type="date" id="date" name="date" required><br>
+
+    <input type="submit" value="Submit">
+</form>
+</body>
+</html>
