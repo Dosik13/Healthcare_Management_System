@@ -4,7 +4,6 @@ import (
 	"Healthcare_Management_System/app/models"
 	"Healthcare_Management_System/utils"
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 	"html/template"
@@ -170,8 +169,6 @@ func (ac *AppointmentController) ScheduleAppointment(w http.ResponseWriter, r *h
 			return
 		}
 
-		fmt.Printf("Appointment: %+v\n", app)
-
 		var appointment models.Appointment
 		if err := ac.DB.Where("date = ? AND start_time = ? AND end_time = ?", app.Date, app.Start, app.End).First(&appointment).Error; err != nil {
 			http.Error(w, "Appointment not found or already scheduled", http.StatusNotFound)
@@ -199,6 +196,28 @@ func (ac *AppointmentController) ScheduleAppointment(w http.ResponseWriter, r *h
 		if updateResult.Error != nil {
 			tx.Rollback()
 			http.Error(w, "Failed to schedule appointment", http.StatusInternalServerError)
+			return
+		}
+		var doctor models.Doctor
+
+		if err := tx.Preload("Patients").First(&doctor, "id = ?", appointment.DoctorID).Error; err != nil {
+			tx.Rollback()
+			http.Error(w, "Failed to fetch doctor", http.StatusInternalServerError)
+			return
+		}
+
+		var patient models.Patient
+		if err := tx.First(&patient, "id = ?", patientID).Error; err != nil {
+			tx.Rollback()
+			http.Error(w, "Failed to fetch patient", http.StatusInternalServerError)
+			return
+		}
+
+		doctor.Patients = append(doctor.Patients, patient)
+
+		if err := tx.Save(&doctor).Error; err != nil {
+			tx.Rollback()
+			http.Error(w, "Failed to update doctor's patients", http.StatusInternalServerError)
 			return
 		}
 

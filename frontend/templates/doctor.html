@@ -46,10 +46,25 @@
     <h2>Welcome, Dr. {{.LastName}}</h2>
     <p>Specialization: {{.Specialization}}</p>
     <section>
-        <h3>Your Appointments</h3>
-        <a href ="/appointments"> View Appointments</a>
+        <h3>See Calendar</h3>
+        <button onclick="location.href='/appointments';">Open Calendar</button>
     </section>
-
+    <section>
+        <h3>Your Appointments</h3>
+        <label>
+            <select name="appointments">
+                {{range .Appointments}}
+                <option value="{{.ID}}">{{.StartTime}} - {{.EndTime}} {{.Date}}</option>
+                {{else}}
+                <option>No appointments found.</option>
+                {{end}}
+            </select>
+        </label>
+    </section>
+    <section>
+        <h3>Make a medical record for patient</h3>
+        <button onclick="location.href='/medical-records';">Submit Medical Record</button>
+    </section>
     <section>
         <h3>Ratings</h3>
         {{range .Ratings}}
@@ -67,7 +82,7 @@
         <label>
             <select name="patients">
                 {{range .Patients}}
-                <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option> <!-- Adjust based on your Patient model -->
+                <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option>
                 {{else}}
                 <option>No patients found.</option>
                 {{end}}

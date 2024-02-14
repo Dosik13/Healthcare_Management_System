@@ -74,9 +74,12 @@ form input[type="text"], form input[type="password"] {
     width: 100%;
     box-sizing: border-box;
 }
-
-form {
-    padding: 20px;
+form input[type="email"] {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    color: #333;
 }
 
 form input[type="text"], form input[type="password"] {
@@ -86,7 +89,7 @@ form input[type="text"], form input[type="password"] {
 
 .form-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     flex-wrap: wrap;
 }
 
@@ -107,7 +110,8 @@ form input[type="text"], form input[type="password"] {
 .gender-row {
     display: flex;
     justify-content: center;
-    align-items: center;
+    text-align: left;
+    width: 100%;
 }
 
 textarea#about {
@@ -115,8 +119,8 @@ textarea#about {
     height: 200px; /* Adjust this value to change the height of the textarea */
 }
 
-input[type="text"], input[type="password"] {
-    width: 100%;
+input[type="text"], input[type="password"], input[type="email"], input[type="tel"]{
+    width: 90%;
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;

@@ -58,7 +58,7 @@
         <label>
             <select name="appointments">
                 {{range .Appointments}}
-                <option value="{{.ID}}">{{.ScheduledAt}} - {{.Status}}</option>
+                <option value="{{.ID}}">{{.StartTime}} - {{.EndTime}} {{.Date}}</option>
                 {{else}}
                 <option>No appointments found.</option>
                 {{end}}

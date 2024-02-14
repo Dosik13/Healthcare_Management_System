@@ -12,6 +12,7 @@ import (
 func RegisterMedicalRecordRoutes(router *mux.Router, db *gorm.DB) {
 	medicalRecordController := controllers.NewMedicalRecordController(db)
 
+	router.Handle("/medical-records", utils.AuthDoctorHandler(http.HandlerFunc(medicalRecordController.CreateMedicalRecord))).Methods("GET")
 	router.Handle("/medical-records", utils.AuthDoctorHandler(http.HandlerFunc(medicalRecordController.CreateMedicalRecord))).Methods("POST")
 	router.HandleFunc("/medical-records", medicalRecordController.GetAllMedicalRecords).Methods("GET")
 	router.HandleFunc("/medical-records/{id}", medicalRecordController.GetMedicalRecord).Methods("GET")

@@ -73,8 +73,7 @@ func (mrc *MedicalRecordController) CreateMedicalRecord(w http.ResponseWriter, r
 			return
 		}
 
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte("Medical record created successfully"))
+		http.Redirect(w, r, "/doctor_dashboard", http.StatusSeeOther)
 
 	} else {
 		tmpl, err := template.ParseFiles("frontend/templates/medical-record.html")

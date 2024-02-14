@@ -10,9 +10,9 @@ import (
 func RegisterRatingRoutes(router *mux.Router, db *gorm.DB) {
 	ratingController := controllers.NewRatingController(db)
 
-	router.HandleFunc("/ratings", ratingController.CreateRating).Methods("POST")
-	router.HandleFunc("/ratings", ratingController.GetAllRatings).Methods("GET")
-	router.HandleFunc("/ratings/{ratingID}", ratingController.GetRating).Methods("GET")
-	router.HandleFunc("/ratings/{ratingID}", ratingController.UpdateRating).Methods("PUT")
+	router.HandleFunc("/ratings/{doctorID}", ratingController.CreateRating).Methods("POST")
+	router.HandleFunc("/ratings/{doctorID}", ratingController.CreateRating).Methods("GET")
+	//	router.HandleFunc("/ratings/{ratingID}", ratingController.GetRating).Methods("GET")
+	//	router.HandleFunc("/ratings/{ratingID}", ratingController.UpdateRating).Methods("PUT")
 	router.HandleFunc("/ratings/{ratingID}", ratingController.DeleteRating).Methods("DELETE")
 }

@@ -238,7 +238,7 @@ func (ac *AuthController) DoctorDashboardHandler(w http.ResponseWriter, r *http.
 		http.Error(w, "Doctor not found", http.StatusNotFound)
 		return
 	}
-	//fmt.Printf("Doctor: %+v\n", doctor)
+
 	tmpl, err := template.ParseFiles("frontend/templates/doctor.html")
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
@@ -267,7 +267,7 @@ func (ac *AuthController) PatientDashboardHandler(w http.ResponseWriter, r *http
 		http.Error(w, "Patient not found", http.StatusNotFound)
 		return
 	}
-	//fmt.Printf("Patient: %+v\n", patient)
+
 	tmpl, err := template.ParseFiles("frontend/templates/patient.html")
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)

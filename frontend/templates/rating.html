@@ -7,10 +7,8 @@
 </head>
 <body>
 <h2>Rate Your Doctor</h2>
-<form id="createRatingForm" action="/ratings" method="post">
-  <label for="doctorId">Doctor ID:</label><br>
-  <input type="number" id="doctorId" name="doctorId" required><br>
 
+<form id="createRatingForm" action="/ratings/{{.DoctorID}}" method="post">
   <label for="score">Score:</label><br>
   <select id="score" name="score" required>
     <option value="1">1 - Poor</option>

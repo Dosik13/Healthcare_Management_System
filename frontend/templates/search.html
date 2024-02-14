@@ -126,7 +126,7 @@
 
         let thead = document.createElement('thead');
         let headerRow = document.createElement('tr');
-        let headers = ['Name', 'Specialty', 'Appointment'];
+        let headers = ['Name', 'Specialty', 'Appointment', 'Rate'];
         headers.forEach(header => {
             let th = document.createElement('th');
             th.textContent = header;
@@ -160,6 +160,15 @@
             };
             appointmentTd.appendChild(appointmentButton);
             resultRow.appendChild(appointmentTd);
+
+            let rate = document.createElement('td');
+            let ratebutton = document.createElement('button');
+            ratebutton.textContent = 'Rate the doctor';
+            ratebutton.onclick = function() {
+                window.location.href = '/ratings/' + result.id;
+            };
+            rate.appendChild(ratebutton);
+            resultRow.appendChild(rate);
 
             tbody.appendChild(resultRow);
         });

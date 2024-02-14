@@ -23,6 +23,9 @@ func NewRatingController(db *gorm.DB) *RatingController {
 func (rc *RatingController) CreateRating(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
+	vars := mux.Vars(r)
+	doctorId, _ := strconv.Atoi(vars["doctorID"])
+
 	if r.Method == "POST" {
 
 		session, err := utils.Store.Get(r, "SessionID")
@@ -36,7 +39,6 @@ func (rc *RatingController) CreateRating(w http.ResponseWriter, r *http.Request)
 			return
 		}
 		score, _ := strconv.Atoi(r.FormValue("score"))
-		doctorId, _ := strconv.Atoi(r.FormValue("doctorId"))
 
 		rating := models.Rating{
 			DoctorID:  uint(doctorId),
@@ -58,8 +60,11 @@ func (rc *RatingController) CreateRating(w http.ResponseWriter, r *http.Request)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		data := map[string]interface{}{
+			"DoctorID": doctorId,
+		}
 
-		err = tmpl.Execute(w, nil)
+		err = tmpl.Execute(w, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
