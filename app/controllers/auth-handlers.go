@@ -34,20 +34,15 @@ func NewAuthController(db *gorm.DB) *AuthController {
 
 func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	session, err := utils.Store.Get(r, "SessionID")
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	if utils.CheckIfLogged(w, r) == true {
 		return
 	}
-	if _, ok := session.Values["user"]; ok {
-		http.Redirect(w, r, "/home", http.StatusSeeOther)
-		return
-	}
+
 	if r.Method == "POST" {
 
 		email := r.FormValue("username")
 		password := r.FormValue("password")
-		role := r.FormValue("role") // Retrieve the selected role
+		role := r.FormValue("role")
 
 		var user RoleUser
 
@@ -76,11 +71,11 @@ func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
-		// Create session
+
 		session, _ := utils.Store.Get(r, "SessionID")
-		// Depending on your session library, you might need to cast user.ID to the appropriate type
-		session.Values["user"] = user.UserId // Store user ID in session
-		session.Values["role"] = role        // Store role in session
+
+		session.Values["user"] = user.UserId
+		session.Values["role"] = role
 		err := session.Save(r, w)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -94,7 +89,7 @@ func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/nurse_dashboard", http.StatusSeeOther)
 		}
 		if role == "patient" {
-			http.Redirect(w, r, "/home", http.StatusSeeOther)
+			http.Redirect(w, r, "/patient_dashboard", http.StatusSeeOther)
 		}
 
 	} else {
@@ -104,7 +99,6 @@ func (ac *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Execute the template and send the result to the client
 		err = tmpl.Execute(w, nil)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -130,11 +124,14 @@ func (ac *AuthController) HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
+
+	if utils.CheckIfLogged(w, r) == true {
+		return
+	}
+
 	if r.Method == "POST" {
 
 		role := r.FormValue("role")
-
-		//	fmt.Println("Role: ", role)
 
 		switch role {
 		case "doctor":
@@ -162,15 +159,6 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 			var patient models.Patient
 			var patient2 models.Patient
 			patient.User = populateUser(r)
-
-			//fmt.Println("Email: ", patient.Email)
-			//fmt.Println("FirstName: ", patient.FirstName)
-			//fmt.Println("MiddleName", patient.MiddleName)
-			//fmt.Println("LastName: ", patient.LastName)
-			//fmt.Println("Password: ", patient.Password)
-			//fmt.Println("UCN: ", patient.UCN)
-			//fmt.Println("Address: ", patient.Address)
-			//fmt.Println("PhoneNumber: ", patient.PhoneNumber)
 
 			if result := ac.DB.First(&patient2, "email = ?", patient.Email); result.Error != nil {
 				result := ac.DB.Create(&patient)
@@ -205,8 +193,6 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 			}
 		}
 
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-
 	} else {
 		tmpl, err := template.ParseFiles("frontend/templates/register.html")
 		if err != nil {
@@ -214,7 +200,6 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		// Execute the template and send the result to the client
 		err = tmpl.Execute(w, nil)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -250,7 +235,7 @@ func (ac *AuthController) DoctorDashboardHandler(w http.ResponseWriter, r *http.
 		http.Error(w, "Doctor not found", http.StatusNotFound)
 		return
 	}
-	fmt.Printf("Doctor: %+v\n", doctor)
+	//fmt.Printf("Doctor: %+v\n", doctor)
 	tmpl, err := template.ParseFiles("frontend/templates/doctor.html")
 	if err != nil {
 		http.Error(w, "Error loading template", http.StatusInternalServerError)
@@ -263,6 +248,173 @@ func (ac *AuthController) DoctorDashboardHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
+}
+
+func (ac *AuthController) PatientDashboardHandler(w http.ResponseWriter, r *http.Request) {
+	session, _ := utils.Store.Get(r, "SessionID")
+	userId, ok := session.Values["user"].(uint)
+	if !ok || userId == 0 {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	var patient models.Patient
+
+	if result := ac.DB.Preload("Appointments").Preload("Billings").Preload("MedicalRecords").First(&patient, "user_id = ?", userId); result.Error != nil {
+		http.Error(w, "Patient not found", http.StatusNotFound)
+		return
+	}
+	//fmt.Printf("Patient: %+v\n", patient)
+	tmpl, err := template.ParseFiles("frontend/templates/patient.html")
+	if err != nil {
+		http.Error(w, "Error loading template", http.StatusInternalServerError)
+		return
+	}
+
+	err = tmpl.Execute(w, patient)
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func (ac *AuthController) ChangeEmailHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+
+	if r.Method == "POST" {
+
+		session, err := utils.Store.Get(r, "SessionID")
+		if err != nil {
+			http.Error(w, "Session error", http.StatusInternalServerError)
+			return
+		}
+		userId, ok := session.Values["user"].(uint)
+		if !ok || userId == 0 {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		role, _ := session.Values["role"].(string)
+
+		newEmail := r.FormValue("newemail")
+
+		switch role {
+		case "patient":
+			var patient2 models.Patient
+
+			if result := ac.DB.First(&patient2, "email = ?", newEmail); result.Error != nil {
+				result := ac.DB.Model(&models.Patient{}).Where("user_id = ?", userId).Update("email", newEmail)
+				if result.Error != nil {
+					http.Error(w, "Failed to update email", http.StatusInternalServerError)
+					return
+				}
+
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+			} else {
+				http.Error(w, "User with this email already exists!", http.StatusConflict)
+				return
+			}
+
+		case "doctor":
+			var doctor2 models.Doctor
+
+			if result := ac.DB.First(&doctor2, "email = ?", newEmail); result.Error != nil {
+				result := ac.DB.Model(&models.Doctor{}).Where("user_id = ?", userId).Update("email", newEmail)
+				if result.Error != nil {
+					http.Error(w, "Failed to update email", http.StatusInternalServerError)
+					return
+				}
+
+				http.Redirect(w, r, "/login", http.StatusSeeOther)
+			} else {
+				http.Error(w, "User with this email already exists!", http.StatusConflict)
+				return
+			}
+		}
+
+	} else {
+		tmpl, err := template.ParseFiles("frontend/templates/changeEmail.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+}
+
+func (ac *AuthController) ChangePasswordHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+
+	if r.Method == "POST" {
+
+		session, err := utils.Store.Get(r, "SessionID")
+		if err != nil {
+			http.Error(w, "Session error", http.StatusInternalServerError)
+			return
+		}
+		userId, ok := session.Values["user"].(uint)
+		if !ok || userId == 0 {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		role, _ := session.Values["role"].(string)
+
+		password := r.FormValue("password")
+		newPassword := r.FormValue("newpassword")
+
+		switch role {
+		case "patient":
+			var patient models.Patient
+			if err := ac.DB.Where("user_id = ?", userId).First(&patient).Error; err == nil {
+
+				if utils.CheckPasswordHash(password, patient.Password) != true {
+					http.Error(w, "Passwords do not match!", http.StatusConflict)
+					return
+				}
+				err := ac.DB.Model(&patient).Update("password", utils.HashPassword(newPassword))
+				if err != nil {
+					http.Error(w, "Failed to update password", http.StatusInternalServerError)
+					return
+				}
+			}
+
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+
+		case "doctor":
+			var doctor models.Doctor
+			if err := ac.DB.Where("user_id = ?", userId).First(&doctor).Error; err == nil {
+
+				if utils.CheckPasswordHash(password, doctor.Password) != true {
+					http.Error(w, "Passwords do not match!", http.StatusConflict)
+					return
+				}
+				err := ac.DB.Model(&doctor).Update("password", utils.HashPassword(newPassword))
+				if err != nil {
+					http.Error(w, "Failed to update password", http.StatusInternalServerError)
+					return
+				}
+
+			}
+
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		}
+
+	} else {
+		tmpl, err := template.ParseFiles("frontend/templates/changePass.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
 }
 
 func populateUser(r *http.Request) models.User {

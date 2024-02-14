@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Change Email</title>
+    <link rel="stylesheet" type="text/css" href="../static/styles.css">
+</head>
+<body>
+<h1 class="fancy-title">Change Email</h1>
+<div>
+    <p>Please type your new email</p>
+</div>
+<form method="POST">
+    <label for="newemail">Email:</label><br>
+    <input type="email" id="newemail" name="newemail" required><br>
+    <label for="role">Role:</label><br>
+    <select id="role" name="role" required>
+        <option value="patient">Patient</option>
+        <option value="doctor">Doctor</option>
+    </select><br>
+    <input type="submit" value="Submit">
+</form>
+</body>
+</html>

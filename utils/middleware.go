@@ -72,3 +72,27 @@ func AuthNurseHandler(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+func CheckIfLogged(w http.ResponseWriter, r *http.Request) bool {
+
+	session, err := Store.Get(r, "SessionID")
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return true
+	}
+	role, ok := session.Values["role"].(string)
+
+	if ok && role == "doctor" {
+		http.Redirect(w, r, "/doctor_dashboard", http.StatusSeeOther)
+		return true
+	}
+	if ok && role == "nurse" {
+		http.Redirect(w, r, "/nurse_dashboard", http.StatusSeeOther)
+		return true
+	}
+	if ok && role == "patient" {
+		http.Redirect(w, r, "/patient_dashboard", http.StatusSeeOther)
+		return true
+	}
+	return false
+}

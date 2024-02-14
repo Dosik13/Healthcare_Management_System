@@ -18,7 +18,18 @@ func RegisterAuth(router *mux.Router, db *gorm.DB) {
 	router.HandleFunc("/logout", AuthHandler.LogoutHandler).Methods("GET")
 	router.HandleFunc("/home", AuthHandler.HomeHandler).Methods("GET")
 	router.Handle("/doctor_dashboard", utils.AuthDoctorHandler(http.HandlerFunc(AuthHandler.DoctorDashboardHandler))).Methods("GET")
+	router.Handle("/patient_dashboard", utils.AuthenticatedPatient(http.HandlerFunc(AuthHandler.PatientDashboardHandler))).Methods("GET")
+
+	router.Handle("/change_email", utils.AuthenticatedPatient(http.HandlerFunc(AuthHandler.ChangeEmailHandler))).Methods("GET")
+	router.Handle("/change_email", utils.AuthenticatedPatient(http.HandlerFunc(AuthHandler.ChangeEmailHandler))).Methods("POST")
+	router.Handle("/change_email", utils.AuthDoctorHandler(http.HandlerFunc(AuthHandler.ChangeEmailHandler))).Methods("GET")
+	router.Handle("/change_email", utils.AuthDoctorHandler(http.HandlerFunc(AuthHandler.ChangeEmailHandler))).Methods("POST")
+
+	router.Handle("/change_password", utils.AuthenticatedPatient(http.HandlerFunc(AuthHandler.ChangePasswordHandler))).Methods("GET")
+	router.Handle("/change_password", utils.AuthenticatedPatient(http.HandlerFunc(AuthHandler.ChangePasswordHandler))).Methods("POST")
+	router.Handle("/change_password", utils.AuthDoctorHandler(http.HandlerFunc(AuthHandler.ChangePasswordHandler))).Methods("GET")
+	router.Handle("/change_password", utils.AuthDoctorHandler(http.HandlerFunc(AuthHandler.ChangePasswordHandler))).Methods("POST")
 	//router.Handle("/nurse/dashboard", utils.RoleAccessMiddleware("nurse", nurseDashboardHandler)).Methods("GET")
-	//router.Handle("/admin/dashboard", utils.RoleAccessMiddleware("administrator", adminDashboardHandler)).Methods("GET")
+	//router.Handle("/patient/dashboard", utils.RoleAccessMiddleware("administrator", adminDashboardHandler)).Methods("GET")
 
 }

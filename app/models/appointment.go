@@ -6,12 +6,12 @@ import (
 
 type Appointment struct {
 	ID          uint      `gorm:"primaryKey"`
-	PatientID   uint      `gorm:"type:varchar(255);not null"` // Foreign key from Patient model
-	DoctorID    uint      `gorm:"type:varchar(255);not null"` // Foreign key from Doctor model
-	HospitalID  uint      `gorm:"type:varchar(255);not null"` // Foreign key from Hospital model
+	PatientID   uint      `gorm:"not null"`
+	DoctorID    uint      `gorm:"not null"`
+	HospitalID  uint      `gorm:"not null"`
 	ScheduledAt time.Time `gorm:"not null"`
 	Status      string    `gorm:"not null"` // e.g., Scheduled, Cancelled, Completed
-	Reason      string    `gorm:"not null"` // Reason for the appointment
+	Reason      string    `gorm:"not null"`
 	CreatedAt   time.Time `gorm:"autoCreateTime"`
 	UpdatedAt   time.Time `gorm:"autoUpdateTime"`
 }
