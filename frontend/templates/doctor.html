@@ -47,15 +47,7 @@
     <p>Specialization: {{.Specialization}}</p>
     <section>
         <h3>Your Appointments</h3>
-        {{range .Appointments}}
-        <div>
-            <p>Date: {{.ScheduledAt}}</p>
-            <p>Patient: {{.Patient.FirstName}}, {{.Patient.LastName}}</p>
-            <p>Status: {{.Status}}</p>
-        </div>
-        {{else}}
-        <p>No appointments found.</p>
-        {{end}}
+        <a href ="/appointments"> View Appointments</a>
     </section>
 
     <section>

@@ -3,10 +3,9 @@ package utils
 import (
 	"github.com/gorilla/sessions"
 	"net/http"
-	"os"
 )
 
-var Store = sessions.NewCookieStore([]byte(os.Getenv("SK")))
+var Store = sessions.NewCookieStore([]byte("Ezmuk+EZdEVFtlDWlMEtfbYW79PtheB60Q5lD22iL+vG0xgY6ha5jBsBNUdN/h7O"))
 
 func AuthenticatedPatient(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +15,7 @@ func AuthenticatedPatient(next http.Handler) http.Handler {
 			return
 		}
 		if role, ok := session.Values["role"].(string); !ok || role != "patient" {
-			http.Error(w, "Access denied", http.StatusForbidden)
+			w.Write([]byte("Access denied"))
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
