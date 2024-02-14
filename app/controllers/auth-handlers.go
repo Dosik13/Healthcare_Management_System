@@ -142,6 +142,7 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 			yearOfExperience, _ := strconv.Atoi(r.FormValue("year_of_experience"))
 			doctor.YearOfExperience = uint(yearOfExperience)
 			doctor.MoreInfo = r.FormValue("about")
+			doctor.User.Role = role
 
 			if result := ac.DB.First(&doctor2, "email = ?", doctor.Email); result.Error != nil {
 				result := ac.DB.Create(&doctor)
@@ -159,6 +160,7 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 			var patient models.Patient
 			var patient2 models.Patient
 			patient.User = populateUser(r)
+			patient.User.Role = role
 
 			if result := ac.DB.First(&patient2, "email = ?", patient.Email); result.Error != nil {
 				result := ac.DB.Create(&patient)
@@ -179,6 +181,7 @@ func (ac *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request
 			yearOfExperience, _ := strconv.Atoi(r.FormValue("year_of_experience"))
 			nurse.YearOfExperience = uint(yearOfExperience)
 			nurse.MoreInfo = r.FormValue("about")
+			nurse.User.Role = role
 
 			if result := ac.DB.First(&nurse2, "email = ?", nurse.Email); result.Error != nil {
 				result := ac.DB.Create(&nurse)
