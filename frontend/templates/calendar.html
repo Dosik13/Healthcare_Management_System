@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        #calendar {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #calendar td, #calendar th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #calendar tr:nth-child(even){background-color: #f2f2f2;}
+
+        #calendar th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Add appointments</h2>
+
+<button onclick="prevMonth()">Previous Month</button>
+<button onclick="nextMonth()">Next Month</button>
+
+<table id="calendar">
+    <tr id="monthAndYear"></tr>
+    <tr>
+        <th>Sun</th>
+        <th>Mon</th>
+        <th>Tue</th>
+        <th>Wed</th>
+        <th>Thu</th>
+        <th>Fri</th>
+        <th>Sat</th>
+    </tr>
+</table>
+<div id="appointmentModal" style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+    <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+        <h2>Add New Appointment</h2>
+        <form id="appointmentForm">
+            <label for="startTime">Start Time (HH:MM):</label><br>
+            <input type="time" id="startTime" name="startTime" required><br>
+            <label for="endTime">End Time (HH:MM):</label><br>
+            <input type="time" id="endTime" name="endTime" required><br>
+            <input type="submit" value="Add Appointment">
+            <button type="button" id="closeAppointmentModal" style="float: right;">Close</button>
+        </form>
+        <div id="appointmentList"></div>
+    </div>
+</div>
+
+<div id="successModal" style="display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+    <div style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%;">
+        <h2 id="successMessage"></h2>
+        <button onclick="document.getElementById('successModal').style.display = 'none';">Close</button>
+    </div>
+</div>
+
+<script>
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+
+    let appointments = {
+    };
+
+    function addAppointment(newAppointment) {
+        let clickedDate = new Date(currentYear, currentMonth, clickedDay + 1);
+        let clickedDateStr = clickedDate.toISOString().split('T')[0]; // Format as 'yyyy-mm-dd'
+        if (!appointments[clickedDateStr]) {
+            appointments[clickedDateStr] = [];
+        }
+        appointments[clickedDateStr].push(newAppointment);
+        document.getElementById('successMessage').textContent = `New appointment added for ${clickedDateStr}:\n${newAppointment}`;
+        document.getElementById('successModal').style.display = 'block';
+        updateCalendar(currentMonth, currentYear);
+
+        // Reset the form fields
+        document.getElementById('startTime').value = '';
+        document.getElementById('endTime').value = '';
+    }
+
+    document.getElementById('appointmentForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let startTime = document.getElementById('startTime').value;
+        let endTime = document.getElementById('endTime').value;
+
+        // Convert the times to Date objects for comparison
+        let startDateTime = new Date(`1970-01-01T${startTime}:00`);
+        let endDateTime = new Date(`1970-01-01T${endTime}:00`);
+
+        // Check if the start time is later than the end time
+        if (startDateTime >= endDateTime) {
+            alert('Start time cannot be later than end time.');
+            return;
+        }
+
+        // Check if the clicked date is in the past
+        let clickedDate = new Date(currentYear, currentMonth, clickedDay + 1);
+        let currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00 for accurate comparison
+        if (clickedDate < currentDate) {
+            alert('Cannot add appointment for past dates.');
+            return;
+        }
+
+        // Check if the new appointment overlaps with any existing appointment
+        let clickedDateStr = clickedDate.toISOString().split('T')[0]; // Format as 'yyyy-mm-dd'
+        let existingAppointments = appointments[clickedDateStr] || [];
+        for (let existingAppointment of existingAppointments) {
+            let [existingStartTime, existingEndTime] = existingAppointment.split('-').map(time => new Date(`1970-01-01T${time}:00`));
+            if ((startDateTime >= existingStartTime && startDateTime < existingEndTime) ||
+                (endDateTime > existingStartTime && endDateTime <= existingEndTime) ||
+                (startDateTime <= existingStartTime && endDateTime >= existingEndTime)) {
+                alert('New appointment overlaps with an existing appointment.');
+                return;
+            }
+        }
+
+        let newAppointment = `${startTime}-${endTime}`;
+        addAppointment(newAppointment);
+        document.getElementById('appointmentModal').style.display = 'none';
+    });
+
+    // Add the event listener for the close button
+    document.getElementById('closeAppointmentModal').addEventListener('click', function(event) {
+        event.stopPropagation();
+        document.getElementById('appointmentModal').style.display = 'none';
+    });
+
+    function updateCalendar(month, year) {
+        let date = new Date(year, month);
+        let daysInMonth = new Date(year, month + 1, 0).getDate();
+        let calendar = document.getElementById('calendar');
+        let monthAndYear = document.getElementById('monthAndYear');
+
+        // Clear previous cells
+        while (calendar.rows.length > 2) {
+            calendar.deleteRow(2);
+        }
+
+        // Fill in the month/year row
+        monthAndYear.innerHTML = `<th colspan="7">${date.toLocaleString('default', { month: 'long' })} ${year}</th>`;
+
+        // Fill in the day cells
+        let row = null;
+        let dayOfWeek = new Date(year, month, 1).getDay();
+        for (let i = 0; i < daysInMonth + dayOfWeek; i++) {
+            if (i % 7 === 0) {
+                row = calendar.insertRow();
+            }
+            let cell = row.insertCell();
+            if (i >= dayOfWeek) {
+                let day = i - dayOfWeek + 1;
+                cell.textContent = day;
+
+                cell.addEventListener('click', function() {
+                    clickedDay = day;
+                    let clickedDate = new Date(currentYear, currentMonth, day + 1);
+                    let clickedDateStr = clickedDate.toISOString().split('T')[0]; // Format as 'yyyy-mm-dd'
+                    let appointmentList = appointments[clickedDateStr] || ['No appointments'];
+
+                    appointmentList.sort(function(a, b) {
+                        let aStartTime = new Date(`1970-01-01T${a.split('-')[0]}:00`);
+                        let bStartTime = new Date(`1970-01-01T${b.split('-')[0]}:00`);
+                        return aStartTime - bStartTime;
+                    });
+
+                    // Check if the clicked date is in the past
+                    let currentDate = new Date();
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    currentDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00 for accurate comparison
+                    if (clickedDate < currentDate) {
+                        // If the clicked date is in the past, only show the appointments for that day
+                        alert(`Appointments for ${clickedDateStr}:\n${appointmentList.join('\n')}`);
+                    } else {
+                        // If the clicked date is not in the past, show the add appointment form and the appointments for that day
+                        document.getElementById('appointmentModal').style.display = 'block';
+
+                        // Display the appointments in the popup
+                        let appointmentDiv = document.getElementById('appointmentList');
+                        appointmentDiv.innerHTML = `<h2>Appointments for ${clickedDateStr}:</h2>\n${appointmentList.join('<br>')}`;
+                    }
+                });
+            }
+        }
+    }
+
+    updateCalendar(currentMonth, currentYear);
+
+
+    function prevMonth() {
+        if (currentMonth === 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else {
+            currentMonth--;
+        }
+        updateCalendar(currentMonth, currentYear);
+    }
+
+    function nextMonth() {
+        if (currentMonth === 11) {
+            currentMonth = 0;
+            currentYear++;
+        } else {
+            currentMonth++;
+        }
+        updateCalendar(currentMonth, currentYear);
+    }
+
+    updateCalendar(currentMonth, currentYear);
+</script>
+
+</body>
+</html>

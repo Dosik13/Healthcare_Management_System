@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Appointment</title>
+</head>
+<body>
+<h2>Add New Appointment</h2>
+<form id="appointmentForm">
+    <label for="startTime">Start Time (HH:MM):</label><br>
+    <input type="time" id="startTime" name="startTime"><br>
+    <label for="endTime">End Time (HH:MM):</label><br>
+    <input type="time" id="endTime" name="endTime"><br>
+    <input type="submit" value="Add Appointment">
+</form>
+
+<script>
+    document.getElementById('appointmentForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let startTime = document.getElementById('startTime').value;
+        let endTime = document.getElementById('endTime').value;
+        let newAppointment = `Appointment: ${startTime}-${endTime}`;
+        window.opener.addAppointment(newAppointment);
+        window.close();
+    });
+</script>
+</body>
+</html>
