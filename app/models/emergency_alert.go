@@ -6,7 +6,7 @@ import (
 
 type EmergencyAlert struct {
 	ID          uint      `gorm:"primaryKey"`
-	PatientID   uint      `gorm:"not null"` // Foreign key from Patient model
+	PatientID   uint      `gorm:"not null"`
 	Description string    `gorm:"type:varchar(255);not null"`
 	Status      string    `gorm:"type:varchar(255);not null"` // e.g., Reported, Responding, Resolved
 	HospitalID  uint      `gorm:"not null"`

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Dashboard</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .container {
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .additional-feature {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Doctor Dashboard</h1>
+<div>
+    <h2>Welcome, Dr. {{.LastName}}</h2>
+    <p>Specialization: {{.Specialization}}</p>
+    <section>
+        <h3>Your Appointments</h3>
+        {{range .Appointments}}
+        <div>
+            <p>Date: {{.ScheduledAt}}</p>
+            <p>Patient: {{.Patient.FirstName}}, {{.Patient.LastName}}</p>
+            <p>Status: {{.Status}}</p>
+        </div>
+        {{else}}
+        <p>No appointments found.</p>
+        {{end}}
+    </section>
+
+    <section>
+        <h3>Ratings</h3>
+        {{range .Ratings}}
+        <div>
+            <p>Score: {{.Score}}/5</p>
+            <p>Comment: {{.Comment}}</p>
+        </div>
+        {{else}}
+        <p>No ratings yet.</p>
+        {{end}}
+    </section>
+
+    <section>
+        <h3>Current Patients</h3>
+        <select name="patients">
+            {{range .Patients}}
+            <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option> <!-- Adjust based on your Patient model -->
+            {{else}}
+            <option>No patients found.</option>
+            {{end}}
+        </select>
+    </section>
+</div>
+<a href="/logout">Logout</a>
+</body>
+</html>

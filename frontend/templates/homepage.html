@@ -1,38 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Homepage</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System</title>
+    <link rel="stylesheet" href="../static/styles.css">
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
         }
         .container {
-            width: 80%;
-            margin: auto;
-        }
-        header {
-            background: #f8f9fa;
-            padding: 20px;
             text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .additional-feature {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-<header>
-    <h1>Welcome to Our Homepage</h1>
-</header>
 <div class="container">
-    <section>
-        <h2>About Us</h2>
-        <p>This is a sample homepage for a website. It includes a header and an about us section.</p>
-    </section>
-    <section>
-        <button onclick="location.href='/logout'" type="button">
-            Logout
-        </button>
-        <h2>Contact Us</h2>
-        <p>You can reach us at email@example.com or call us at 123-456-7890.</p>
-    </section>
+    <h1>Welcome to SuperDoc Hospital Management System</h1>
+    <a href="/login" class="btn">Login</a>
+    <a href="/register" class="btn">Register</a>
+    <a href="/logout" class="btn">Logout</a>
+    <div class="additional-feature">
+        <a href="/about" class="btn">Learn More About Us</a>
+        <a href="/contact" class="btn">Contact Us</a>
+    </div>
 </div>
 </body>
 </html>

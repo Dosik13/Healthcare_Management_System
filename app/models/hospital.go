@@ -7,7 +7,7 @@ type Hospital struct {
 	Name           string           `gorm:"type:varchar(255);not null"`
 	Address        string           `gorm:"type:varchar(255);not null"`
 	PhoneNumber    string           `gorm:"type:varchar(255);not null"`
-	Description    string           `gorm:"type:text"` // Optional
+	Description    string           `gorm:"type:text"`
 	Doctors        []Doctor         `gorm:"foreignKey:HospitalID"`
 	Nurses         []Nurse          `gorm:"foreignKey:HospitalID"`
 	Patients       []Patient        `gorm:"foreignKey:HospitalID"`
