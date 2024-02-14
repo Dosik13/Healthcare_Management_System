@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 2em;
+        }
+
+        form {
+            margin: 20px auto;
+            width: 80%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        label, input {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 1.2em;
+        }
+
+        table {
+            margin: 20px auto;
+            width: 80%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        button {
+            background-color: #008CBA; /* Blue */
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+<h1>Search for Doctors</h1>
+
+<form id="searchForm">
+    <label for="name">Name:</label><br>
+    <input type="text" id="name" name="name"><br>
+    <label for="specialty">Specialty:</label><br>
+    <input type="text" id="specialty" name="specialty"><br>
+    <label for="days">Days of the Month:</label><br>
+    <input type="date" id="days" name="days"><br>
+    <input type="button" value="Search" onclick="searchDoctors()">
+</form>
+
+<div id="results"></div>
+
+<script>
+    let doctors = [
+        {
+            name: 'Dr. Smith',
+            specialty: 'Pediatrics',
+            days: ["2024-02-29", "2024-03-01", "2024-03-02"]
+        },
+        {
+            name: 'Dr. Johnson',
+            specialty: 'Cardiology',
+            days: ["2024-03-28", "2024-03-29", "2024-03-01"]
+        },
+        {
+            name: 'Dr. Williams',
+            specialty: 'Dermatology',
+            days: ["2024-04-01", "2024-04-02", "2024-04-03", "2024-04-04"]
+        },
+        {
+            name: 'Dr. Brown',
+            specialty: 'Pediatrics',
+            days: ["2024-04-01", "2024-04-02", "2024-04-03", "2024-04-04"]
+        }
+    ];
+
+    function searchDoctors() {
+        let name = document.getElementById('name').value;
+        let specialty = document.getElementById('specialty').value;
+        let days = document.getElementById('days').value;
+        let date = days ? new Date(days).toISOString().slice(0,10) : null;
+        console.log(date);
+
+        console.log(name, specialty, date);
+
+        let results = doctors.filter(doctor => {
+            let nameMatch = name ? doctor.name.includes(name) : true;
+            let specialtyMatch = specialty ? doctor.specialty.includes(specialty) : true;
+            let daysMatch = date ? doctor.days.includes(date) : true;
+
+            return nameMatch && specialtyMatch && daysMatch;
+        });
+
+        displayResults(results);
+    }
+
+    function displayResults(results) {
+        let resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '';
+
+        if (results.length === 0) {
+            resultsDiv.textContent = 'No doctors found for the given criteria. Please try again.';
+            return;
+        }
+
+        // Create table
+        let table = document.createElement('table');
+
+        // Create table header
+        let thead = document.createElement('thead');
+        let headerRow = document.createElement('tr');
+        let headers = ['Name', 'Specialty', 'Appointment'];
+        headers.forEach(header => {
+            let th = document.createElement('th');
+            th.textContent = header;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Create table body
+        let tbody = document.createElement('tbody');
+        results.forEach(result => {
+            let resultRow = document.createElement('tr');
+
+            // Create a hyperlink for the doctor's name
+            let nameTd = document.createElement('td');
+            let nameLink = document.createElement('a');
+            nameLink.textContent = result.name;
+            nameLink.href = '#'; // replace with the URL you want to link to
+            nameTd.appendChild(nameLink);
+            resultRow.appendChild(nameTd);
+
+            let specialtyTd = document.createElement('td');
+            specialtyTd.textContent = result.specialty;
+            resultRow.appendChild(specialtyTd);
+
+            let appointmentTd = document.createElement('td');
+            let appointmentButton = document.createElement('button');
+            appointmentButton.textContent = 'Arrange Appointment';
+            appointmentButton.onclick = function() {
+                window.location.href = 'appointment.html'; // replace with the URL of your appointment page
+            };
+            appointmentTd.appendChild(appointmentButton);
+            resultRow.appendChild(appointmentTd);
+
+            tbody.appendChild(resultRow);
+        });
+        table.appendChild(tbody);
+        resultsDiv.appendChild(table);
+    }
+</script>
+</body>
+</html>
