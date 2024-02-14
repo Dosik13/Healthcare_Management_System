@@ -72,13 +72,15 @@
 
     <section>
         <h3>Current Patients</h3>
-        <select name="patients">
-            {{range .Patients}}
-            <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option> <!-- Adjust based on your Patient model -->
-            {{else}}
-            <option>No patients found.</option>
-            {{end}}
-        </select>
+        <label>
+            <select name="patients">
+                {{range .Patients}}
+                <option value="{{.ID}}">{{.FirstName}} {{.LastName}}</option> <!-- Adjust based on your Patient model -->
+                {{else}}
+                <option>No patients found.</option>
+                {{end}}
+            </select>
+        </label>
     </section>
 </div>
 <a href="/logout">Logout</a>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Submit Rating</title>
+  <link rel="stylesheet" href="../static/styles.css"> <!-- Link your CSS file -->
+</head>
+<body>
+<h2>Rate Your Doctor</h2>
+<form id="createRatingForm" action="/billings" method="post">
+  <label for="doctorId">Doctor ID:</label><br>
+  <input type="number" id="doctorId" name="doctorId" required><br>
+
+  <label for="score">Score:</label><br>
+  <select id="score" name="score" required>
+    <option value="1">1 - Poor</option>
+    <option value="2">2</option>
+    <option value="3">3 - Average</option>
+    <option value="4">4</option>
+    <option value="5">5 - Excellent</option>
+  </select><br>
+
+  <label for="comment">Comment:</label><br>
+  <textarea id="comment" name="comment"></textarea><br>
+
+  <input type="submit" value="Submit Rating">
+</form>
+</body>
+</html>

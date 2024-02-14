@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"Healthcare_Management_System/utils"
 	"encoding/json"
+	"html/template"
 	"net/http"
 	"strconv"
 
@@ -19,14 +21,49 @@ func NewRatingController(db *gorm.DB) *RatingController {
 }
 
 func (rc *RatingController) CreateRating(w http.ResponseWriter, r *http.Request) {
-	var rating models.Rating
-	if err := json.NewDecoder(r.Body).Decode(&rating); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	w.Header().Set("Content-Type", "text/html")
+
+	if r.Method == "POST" {
+
+		session, err := utils.Store.Get(r, "SessionID")
+		if err != nil {
+			http.Error(w, "Session error", http.StatusInternalServerError)
+			return
+		}
+		userId, ok := session.Values["user"].(uint)
+		if !ok || userId == 0 {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+		score, _ := strconv.Atoi(r.FormValue("score"))
+		doctorId, _ := strconv.Atoi(r.FormValue("doctorId"))
+
+		rating := models.Rating{
+			DoctorID:  uint(doctorId),
+			PatientID: userId,
+			Score:     score,
+			Comment:   r.FormValue("comment"),
+		}
+
+		if result := rc.DB.Create(&rating); result.Error != nil {
+			http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/patient_dashboard", http.StatusSeeOther)
+
+	} else {
+		tmpl, err := template.ParseFiles("frontend/templates/billing.html")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
-	rc.DB.Create(&rating)
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(rating)
 }
 
 func (rc *RatingController) GetRating(w http.ResponseWriter, r *http.Request) {
